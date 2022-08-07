@@ -13,8 +13,6 @@ class ExampleApp : public Nova::App
 public:
 	ExampleApp(const Nova::List<Nova::string>& args);
 	~ExampleApp();
-
-	virtual void Run() override;
 };
 
 // Define this as the application class that will be created for the lifetime of the app

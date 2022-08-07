@@ -8,13 +8,11 @@
 #include "Nova/Core/Types/String.h"
 #include "Nova/Core/Types/Exception.h"
 
+#ifndef NOVA_EXTERNAL_MAIN
 #ifdef PLATFORM_WINDOWS
 #include "Nova/Platform/Windows/Core/Entry_Windows.h"
 #endif
-
-
-// Macro to create an App factory that returns an instance of the client's app class
-#define MainApp(AppClass) Nova::App* CreateApp(const Nova::List<Nova::string>& args) { return new AppClass(args); }
+#endif
 
 // The function that will create our client's App class. Should be defined using the MainApp macro
 extern Nova::App* CreateApp(const Nova::List<Nova::string>& args);
@@ -26,21 +24,23 @@ namespace Nova
 	/// </summary>
 	/// <param name="args">A list of execution arguments</param>
 	/// <returns>Application exit code</returns>
-	int Entry(const Nova::List<Nova::string>& args)
+	App::AppExitCode Entry(const Nova::List<Nova::string>& args)
 	{
 		auto app = CreateApp(args);
+		App::AppExitCode exitCode;
 
 		try
 		{
-			app->Run();
+			exitCode = app->Run();
 		}
 		catch(const Exception& ex)
 		{
 			// TODO: error handle for app
+			exitCode = App::AppExitCode::UNHANDLED_EXCEPTION;
 		}
 
 		delete app;
 
-		return 0;
+		return exitCode;
 	}
 }

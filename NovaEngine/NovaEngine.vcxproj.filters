@@ -57,6 +57,21 @@
     <ClInclude Include="Nova\Core\Types\DateTime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Nova\Core\App\MainLoop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Events\Event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Objects\Object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Events\EventTick.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Events\EventSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Nova\Core\App\App.cpp">
@@ -69,6 +84,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Nova\Core\Types\DateTime.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\App\MainLoop.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Events\Event.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Objects\Object.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -7,12 +7,14 @@ namespace Nova
 	App* App::sp_AppInstance = nullptr;
 
 	App::App(const string& name) :
-		m_Name(name), m_StartTime(TimeSpan::Now())
+		m_Name(name), m_StartTime(TimeSpan::Now()), m_ExitCode(AppExitCode::SUCCESS)
 	{
 		sp_AppInstance = this;
 
 		m_CoreLogger = MakeRef<Logger>("Nova");
 		m_AppLogger = MakeRef<Logger>(name);
+
+		m_MainLoop = CreateMainLoop();
 	}
 
 	App::~App()
@@ -43,7 +45,20 @@ namespace Nova
 		m_CoreLogger->CreateSink<ConsoleLogSink>();
 		m_AppLogger->CreateSink<ConsoleLogSink>();
 
-		LogCore("Core logger created");
-		Log("App logger created");
+		LogCore("App::CreateDefaultLogSinks(): Core logger created", LogLevel::Verbose);
+		Log("App::CreateDefaultLogSinks(): App logger created", LogLevel::Verbose);
+	}
+
+	Ref<MainLoop> App::CreateMainLoop()
+	{
+		return MakeRef<MainLoop>();
+	}
+
+	App::AppExitCode App::Run()
+	{
+		LogCore("App::Run(): Starting MainLoop", LogLevel::Verbose);
+		m_MainLoop->Run();
+
+		return m_ExitCode;
 	}
 }

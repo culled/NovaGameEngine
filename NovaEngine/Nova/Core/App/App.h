@@ -8,12 +8,19 @@
 #include "Nova/Core/Types/List.h"
 #include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
+#include "MainLoop.h"
 
 namespace Nova
 {
 	NovaClass App
 	{
 	public:
+		enum class AppExitCode
+		{
+			SUCCESS = 0,
+			UNHANDLED_EXCEPTION = 1
+		};
+
 		/// <summary>
 		/// Gets the duration of time this application has been running
 		/// </summary>
@@ -56,7 +63,7 @@ namespace Nova
 		/// Gets the instance of the app
 		/// </summary>
 		/// <returns>The app instance</returns>
-		static const App* Get() { return sp_AppInstance; }
+		static App* Get() { return sp_AppInstance; }
 
 	private:
 		static App* sp_AppInstance;
@@ -76,7 +83,7 @@ namespace Nova
 		/// <summary>
 		/// The function that will run all the tasks for this application. Once this returns the app is shutdown
 		/// </summary>
-		virtual void Run() = 0;
+		virtual AppExitCode Run();
 
 		/// <summary>
 		/// Gets the name of this application
@@ -107,8 +114,15 @@ namespace Nova
 		/// </summary>
 		void CreateDefaultLogSinks();
 
-	private:
+		/// <summary>
+		/// Creates the MainLoop for the application. By default returns an instance of the MainLoop class
+		/// </summary>
+		/// <returns>An instance of a MainLoop</returns>
+		virtual Ref<MainLoop> CreateMainLoop();
+
+	protected:
 		string m_Name;
+		AppExitCode m_ExitCode;
 
 		List<Ref<AppModule>> m_ActiveModules;
 
@@ -116,5 +130,10 @@ namespace Nova
 
 		Ref<Logger> m_CoreLogger;
 		Ref<Logger> m_AppLogger;
+
+		Ref<MainLoop> m_MainLoop;
 	};
 }
+
+// Macro to create an App factory that returns an instance of the client's app class
+#define MainApp(AppClass) Nova::App* CreateApp(const Nova::List<Nova::string>& args) { return new AppClass(args); }

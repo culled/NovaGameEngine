@@ -34,6 +34,13 @@ namespace Nova
 	template<typename T, typename ... Args>
 	inline Ref<T> MakeRef(Args&& ...args) { return std::make_shared<T>(std::forward<Args>(args)...); }
 
+	template<typename T>
+	using WeakRef = std::weak_ptr<T>;
+
+	template<typename T>
+	inline WeakRef<T> MakeWeakRef(Ref<T> ref) { return std::weak_ptr<T>(ref); }
+
+
 	/// <summary>
 	/// A managed pointer reference to an object that cannot be shared freely
 	/// </summary>

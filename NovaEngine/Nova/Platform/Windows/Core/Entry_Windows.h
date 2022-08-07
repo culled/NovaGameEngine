@@ -7,7 +7,7 @@
 
 namespace Nova
 {
-	extern int Entry(const Nova::List<Nova::string>& args);
+	extern App::AppExitCode Entry(const Nova::List<Nova::string>& args);
 }
 
 int main(int argc, char** argv)
@@ -19,5 +19,5 @@ int main(int argc, char** argv)
 		args.push_back(Nova::string(argv[i]));
 
 	// Call the main entrypoint of the engine
-	return Nova::Entry(args);
+	return static_cast<int>(Nova::Entry(args));
 }
