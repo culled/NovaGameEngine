@@ -8,6 +8,7 @@
 #include "Nova/Core/Types/List.h"
 #include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
+#include "Nova/Core/Nodes/NodeTree.h"
 #include "MainLoop.h"
 
 namespace Nova
@@ -132,6 +133,7 @@ namespace Nova
 		Ref<Logger> m_AppLogger;
 
 		Ref<MainLoop> m_MainLoop;
+		Ref<NodeTree> m_NodeTree;
 	};
 }
 

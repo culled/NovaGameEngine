@@ -63,13 +63,19 @@
     <ClInclude Include="Nova\Core\Events\Event.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Objects\Object.h">
+    <ClInclude Include="Nova\Core\Nodes\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Nova\Core\Events\EventTick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Nova\Core\Events\EventSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Events\TickListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Nodes\NodeTree.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,7 +98,10 @@
     <ClCompile Include="Nova\Core\Events\Event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nova\Core\Objects\Object.cpp">
+    <ClCompile Include="Nova\Core\Nodes\Node.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

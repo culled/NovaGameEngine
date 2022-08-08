@@ -142,12 +142,14 @@
     <ClInclude Include="Nova\Core\Events\Event.h" />
     <ClInclude Include="Nova\Core\Events\EventSource.h" />
     <ClInclude Include="Nova\Core\Events\EventTick.h" />
+    <ClInclude Include="Nova\Core\Events\TickListener.h" />
     <ClInclude Include="Nova\Core\Logging\ConsoleLogSink.h" />
     <ClInclude Include="Nova\Core\Logging\Logger.h" />
     <ClInclude Include="Nova\Core\Logging\LogLevel.h" />
     <ClInclude Include="Nova\Core\Logging\LogSink.h" />
     <ClInclude Include="Nova\Core\Modules\AppModule.h" />
-    <ClInclude Include="Nova\Core\Objects\Object.h" />
+    <ClInclude Include="Nova\Core\Nodes\NodeTree.h" />
+    <ClInclude Include="Nova\Core\Nodes\Node.h" />
     <ClInclude Include="Nova\Core\Types\DateTime.h" />
     <ClInclude Include="Nova\Core\Types\Exception.h" />
     <ClInclude Include="Nova\Core\Types\List.h" />
@@ -161,7 +163,8 @@
     <ClCompile Include="Nova\Core\Events\Event.cpp" />
     <ClCompile Include="Nova\Core\Logging\ConsoleLogSink.cpp" />
     <ClCompile Include="Nova\Core\Logging\Logger.cpp" />
-    <ClCompile Include="Nova\Core\Objects\Object.cpp" />
+    <ClCompile Include="Nova\Core\Nodes\Node.cpp" />
+    <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp" />
     <ClCompile Include="Nova\Core\Types\DateTime.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

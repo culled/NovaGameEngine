@@ -11,10 +11,16 @@ namespace Nova
 	{
 		sp_AppInstance = this;
 
+		// Create our default logs
 		m_CoreLogger = MakeRef<Logger>("Nova");
 		m_AppLogger = MakeRef<Logger>(name);
 
+		// Create the main application loop
 		m_MainLoop = CreateMainLoop();
+
+		// Create the main node tree and add it to the loop
+		m_NodeTree = MakeRef<NodeTree>();
+		m_MainLoop->AddTickListener(m_NodeTree);
 	}
 
 	App::~App()
@@ -57,7 +63,7 @@ namespace Nova
 	App::AppExitCode App::Run()
 	{
 		LogCore("App::Run(): Starting MainLoop", LogLevel::Verbose);
-		m_MainLoop->Run();
+		m_MainLoop->Start();
 
 		return m_ExitCode;
 	}
