@@ -104,5 +104,8 @@
     <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Nova\Core\Modules\AppModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

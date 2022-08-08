@@ -163,6 +163,7 @@
     <ClCompile Include="Nova\Core\Events\Event.cpp" />
     <ClCompile Include="Nova\Core\Logging\ConsoleLogSink.cpp" />
     <ClCompile Include="Nova\Core\Logging\Logger.cpp" />
+    <ClCompile Include="Nova\Core\Modules\AppModule.cpp" />
     <ClCompile Include="Nova\Core\Nodes\Node.cpp" />
     <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp" />
     <ClCompile Include="Nova\Core\Types\DateTime.cpp" />
