@@ -17,42 +17,7 @@
 #define NovaClass class NOVA_API
 #define NovaStruct struct NOVA_API
 
-namespace Nova
-{
-	/// <summary>
-	/// A reference to an object
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	template<typename T>
-	using Ref = std::shared_ptr<T>;
-
-	/// <summary>
-	/// Creates a reference counted object on the heap
-	/// </summary>
-	/// <param name="...args">The arguments to pass to the class's constructor</param>
-	/// <returns>A reference to the created object</returns>
-	template<typename T, typename ... Args>
-	inline Ref<T> MakeRef(Args&& ...args) { return std::make_shared<T>(std::forward<Args>(args)...); }
-
-	template<typename T>
-	using WeakRef = std::weak_ptr<T>;
-
-	template<typename T>
-	inline WeakRef<T> MakeWeakRef(Ref<T> ref) { return std::weak_ptr<T>(ref); }
-
-
-	/// <summary>
-	/// A managed pointer reference to an object that cannot be shared freely
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	template<typename T>
-	using Scope = std::unique_ptr<T>;
-
-	/// <summary>
-	/// Creates a managed object that cannot be shared freely
-	/// </summary>
-	/// <param name="...args">The arguments to pass to the class's constructor</param>
-	/// <returns>The managed object</returns>
-	template<typename T, typename ... Args>
-	inline Scope<T> MakeScope(Args&& ...args) { return std::make_unique<T>(std::forward<Args>(args)...); }
-}
+#include "Types/String.h"
+#include "Types/List.h"
+#include "Types/RefCounted.h"
+#include "Types/Exception.h"

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
-#include "Nova/Core/Types/String.h"
-#include "Nova/Core/Types/List.h"
 
 namespace Nova
 {
@@ -11,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all nodes that live in a NodeTree
 	/// </summary>
-	NovaClass Node
+	NovaClass Node : public RefCounted<Node>
 	{
 	public:
 		static bool TickComparator(const Ref<Node>& lhs, const Ref<Node>& rhs) { return lhs->m_TickPriority > rhs->m_TickPriority; }
@@ -79,6 +77,7 @@ namespace Nova
 		bool m_TickEnabled = false;
 		int m_TickPriority = 0;
 
+		WeakRef<Node> m_Parent;
 		List<Ref<Node>> m_Children;
 		Ref<NodeTree> m_Tree;
 

@@ -6,7 +6,7 @@ namespace Nova
 {
 	NodeTree::NodeTree()
 	{
-		m_RootNode = MakeRef<Node>("Root", shared_from_this());
+		m_RootNode = MakeRef<Node>("Root", GetRef<NodeTree>());
 	}
 
 	void NodeTree::TickNode(Ref<Node> node, double deltaTime)

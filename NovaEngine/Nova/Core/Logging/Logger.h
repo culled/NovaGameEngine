@@ -20,7 +20,6 @@ namespace Nova
 		/// </summary>
 		/// <param name="name">The name for this logger</param>
 		Logger(const string& name);
-		~Logger() = default;
 
 		/// <summary>
 		/// Creates and adds a sink for logging

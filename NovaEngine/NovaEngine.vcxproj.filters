@@ -66,9 +66,6 @@
     <ClInclude Include="Nova\Core\Nodes\Node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Events\EventTick.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Nova\Core\Events\EventSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +73,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Nova\Core\Nodes\NodeTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Types\Counters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Types\RefCounted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -12,8 +12,8 @@ namespace Nova
 		sp_AppInstance = this;
 
 		// Create our default logs
-		m_CoreLogger = MakeRef<Logger>("Nova");
-		m_AppLogger = MakeRef<Logger>(name);
+		m_CoreLogger = MakeExclusive<Logger>("Nova");
+		m_AppLogger = MakeExclusive<Logger>(name);
 
 		// Create the main application loop
 		m_MainLoop = CreateMainLoop();
@@ -22,9 +22,6 @@ namespace Nova
 		m_NodeTree = MakeRef<NodeTree>();
 		m_MainLoop->AddTickListener(m_NodeTree);
 	}
-
-	App::~App()
-	{}
 
 	TimeSpan App::GetRunningTime()
 	{
@@ -55,9 +52,15 @@ namespace Nova
 		Log("App::CreateDefaultLogSinks(): App logger created", LogLevel::Verbose);
 	}
 
-	Ref<MainLoop> App::CreateMainLoop()
+	Exclusive<MainLoop> App::CreateMainLoop()
 	{
-		return MakeRef<MainLoop>();
+		return MakeExclusive<MainLoop>();
+	}
+
+	void App::AddModule(Ref<AppModule> appModule)
+	{
+		m_AppModules.push_back(appModule);
+		m_MainLoop->AddTickListener(appModule);
 	}
 
 	App::AppExitCode App::Run()

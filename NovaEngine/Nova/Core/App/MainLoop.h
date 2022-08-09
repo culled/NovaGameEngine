@@ -3,7 +3,6 @@
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Events/TickListener.h"
 #include "Nova/Core/Types/DateTime.h"
-#include "Nova/Core/Types/List.h"
 
 namespace Nova
 {
@@ -22,6 +21,8 @@ namespace Nova
 		static bool CompareTickListeners(const WeakRef<TickListener>& lhs, const WeakRef<TickListener>& rhs);
 
 	public:
+		virtual ~MainLoop() = default;
+
 		/// <summary>
 		/// Starts this loop
 		/// </summary>

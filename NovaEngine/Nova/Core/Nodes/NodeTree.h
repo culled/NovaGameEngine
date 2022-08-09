@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Class that manages a tree of nodes
 	/// </summary>
-	NovaClass NodeTree : public TickListener, public std::enable_shared_from_this<NodeTree>
+	NovaClass NodeTree : public TickListener
 	{
 	public:
 		/// <summary>

@@ -4,9 +4,6 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/App/App.h"
-#include "Nova/Core/Types/List.h"
-#include "Nova/Core/Types/String.h"
-#include "Nova/Core/Types/Exception.h"
 
 #ifndef NOVA_EXTERNAL_MAIN
 #ifdef PLATFORM_WINDOWS

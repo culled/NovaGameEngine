@@ -4,8 +4,6 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/AppModule.h"
-#include "Nova/Core/Types/String.h"
-#include "Nova/Core/Types/List.h"
 #include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
 #include "Nova/Core/Nodes/NodeTree.h"
@@ -49,18 +47,6 @@ namespace Nova
 		static void LogCore(const string& message, LogLevel level = LogLevel::Info);
 
 		/// <summary>
-		/// Gets the app's logger
-		/// </summary>
-		/// <returns>The app's logger</returns>
-		static Ref<Logger> GetLog() { return sp_AppInstance->m_AppLogger; }
-
-		/// <summary>
-		/// Gets the core engine logger
-		/// </summary>
-		/// <returns>The core engine logger</returns>
-		static Ref<Logger> GetCoreLog() { return sp_AppInstance->m_CoreLogger; }
-
-		/// <summary>
 		/// Gets the instance of the app
 		/// </summary>
 		/// <returns>The app instance</returns>
@@ -79,7 +65,7 @@ namespace Nova
 		/// <summary>
 		/// The destructor for this application
 		/// </summary>
-		virtual ~App();
+		virtual ~App() = default;
 
 		/// <summary>
 		/// The function that will run all the tasks for this application. Once this returns the app is shutdown
@@ -99,15 +85,17 @@ namespace Nova
 		/// <param name="executionOffset">A user-defined offset to apply on top of the module's default offset</param>
 		/// <param name="...args">Any extra parameters to pass to the constructor of the module class</param>
 		template<class T, typename ... Args>
-		void LoadModule(int executionOffset = 0, Args&& ...args)
+		void CreateModule(int executionOffset = 0, Args&& ...args)
 		{
 			// Only accept classes that derive from AppModule
 			static_assert(std::is_base_of<AppModule, T>::value, "The class must inherit from AppModule");
 
 			Ref<T> appModule = MakeRef<T>(executionOffset, std::forward<Args>(args)...);
 
-			m_ActiveModules.push_back(appModule);
+			AddModule(appModule);
 		}
+
+		void AddModule(Ref<AppModule> appModule);
 
 	protected:
 		/// <summary>
@@ -119,20 +107,19 @@ namespace Nova
 		/// Creates the MainLoop for the application. By default returns an instance of the MainLoop class
 		/// </summary>
 		/// <returns>An instance of a MainLoop</returns>
-		virtual Ref<MainLoop> CreateMainLoop();
+		virtual Exclusive<MainLoop> CreateMainLoop();
 
 	protected:
 		string m_Name;
 		AppExitCode m_ExitCode;
 
-		List<Ref<AppModule>> m_ActiveModules;
-
 		TimeSpan m_StartTime;
 
-		Ref<Logger> m_CoreLogger;
-		Ref<Logger> m_AppLogger;
+		Exclusive<Logger> m_CoreLogger;
+		Exclusive<Logger> m_AppLogger;
 
-		Ref<MainLoop> m_MainLoop;
+		Exclusive<MainLoop> m_MainLoop;
+		List<Ref<AppModule>> m_AppModules;
 		Ref<NodeTree> m_NodeTree;
 	};
 }

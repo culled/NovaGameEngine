@@ -7,7 +7,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all classes that listen for ticks from the main loop
 	/// </summary>
-	NovaClass TickListener
+	NovaClass TickListener : public RefCounted<TickListener>
 	{
 	public:
 		virtual ~TickListener() = default;

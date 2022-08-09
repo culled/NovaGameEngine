@@ -141,7 +141,6 @@
     <ClInclude Include="Nova\Core\Engine.h" />
     <ClInclude Include="Nova\Core\Events\Event.h" />
     <ClInclude Include="Nova\Core\Events\EventSource.h" />
-    <ClInclude Include="Nova\Core\Events\EventTick.h" />
     <ClInclude Include="Nova\Core\Events\TickListener.h" />
     <ClInclude Include="Nova\Core\Logging\ConsoleLogSink.h" />
     <ClInclude Include="Nova\Core\Logging\Logger.h" />
@@ -150,9 +149,11 @@
     <ClInclude Include="Nova\Core\Modules\AppModule.h" />
     <ClInclude Include="Nova\Core\Nodes\NodeTree.h" />
     <ClInclude Include="Nova\Core\Nodes\Node.h" />
+    <ClInclude Include="Nova\Core\Types\Counters.h" />
     <ClInclude Include="Nova\Core\Types\DateTime.h" />
     <ClInclude Include="Nova\Core\Types\Exception.h" />
     <ClInclude Include="Nova\Core\Types\List.h" />
+    <ClInclude Include="Nova\Core\Types\RefCounted.h" />
     <ClInclude Include="Nova\Core\Types\String.h" />
     <ClInclude Include="Nova\Platform\Windows\Core\Engine_Windows.h" />
     <ClInclude Include="Nova\Platform\Windows\Core\Entry_Windows.h" />

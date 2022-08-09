@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
-#include "Nova/Core/Types/List.h"
 #include "Event.h"
 
 #include <functional>
@@ -11,16 +10,26 @@
 
 namespace Nova
 {
+	/// <summary>
+	/// Represents a weak binding to a member function pointer
+	/// </summary>
 	template<typename T, typename = std::enable_if_t<std::is_base_of_v<Event, T>>>
-	NovaClass EventBinding
+	NovaClass WeakEventBinding
 	{
 	public:
 		using EventCallback = std::function<bool(Ref<T>)>;
 
+		/// <summary>
+		/// Creates a weak binding to a member function on the given object
+		/// </summary>
+		/// <param name="obj">The object to bind to</param>
+		/// <param name="method">The function to bind to</param>
 		template<typename U>
-		EventBinding(Ref<U> obj, void (U::* method)(Ref<T>))
+		WeakEventBinding(Ref<U> obj, void (U::* method)(Ref<T>))
 		{
+			// Create a weak reference to the object and pass that to a lambda function so we can call the proper function while the object exists
 			WeakRef<U> weakRef = MakeWeakRef<U>(obj);
+
 			m_Callback = [weakRef, method](Ref<T> e)
 			{ 
 				auto ref = weakRef.lock();
@@ -34,21 +43,37 @@ namespace Nova
 				return false;
 			};
 
+			// Store some info about the object and function for possible comparisons
 			m_ObjHash = GetObjHash(obj);
 			m_FuncHash = GetFuncHash(method);
 		}
 
+		/// <summary>
+		/// Attempts to call the bound function. Will return false if the call fails (i.e. the object was deleted)
+		/// </summary>
+		/// <param name="e">The event</param>
+		/// <returns>True if the call was successful</returns>
 		bool Call(Ref<T> e)
 		{
 			return m_Callback(e);
 		}
 
+		/// <summary>
+		/// Checks if the given object and member function are the same ones that this binding is bound to
+		/// </summary>
+		/// <param name="obj">The object</param>
+		/// <param name="method">The function on the object</param>
+		/// <returns>True if this binding is bound to the function on the object</returns>
 		template<typename U>
 		bool Equals(Ref<U> obj, void (U::* method)(Ref<T>)) const
 		{
 			return GetObjHash(obj) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
 		}
 
+	private:
+		/// <summary>
+		/// Calculates a hash for a given object
+		/// </summary>
 		template<typename U>
 		size_t GetObjHash(Ref<U> obj) const
 		{
@@ -56,10 +81,13 @@ namespace Nova
 			return h(obj.get());
 		}
 
-		// TODO: Make this actually check if the method has the same address as the stored method
+		/// <summary>
+		/// Calculates a hash for a given function
+		/// </summary>	
 		template<typename U>
 		size_t GetFuncHash(void (U::* method)(Ref<T>)) const
 		{
+			// TODO: Make this actually check if the method has the same address as the stored method
 			return 0;
 		}
 
@@ -85,7 +113,7 @@ namespace Nova
 		void Connect(Ref<U> object, void (U::* method)(Ref<V>))
 		{
 			// Create a binding with the object and member function
-			EventBinding listener(object, method);
+			WeakEventBinding listener(object, method);
 			m_Listeners.emplace(m_Listeners.begin(), listener);
 		}
 
@@ -97,7 +125,7 @@ namespace Nova
 		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
 		void Disconnect(Ref<U> object, void (U::* method)(Ref<V>))
 		{
-			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [object, method](const EventBinding<T>& binding)
+			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [object, method](const WeakEventBinding<T>& binding)
 				{
 					return binding.Equals(object, method);
 				});
@@ -128,7 +156,7 @@ namespace Nova
 			{
 				m_WasCurrentListenerErased = false;
 
-				EventBinding<T> binding = *m_CurrentEventIterator;
+				WeakEventBinding<T> binding = *m_CurrentEventIterator;
 
 				if (!binding.Call(e))
 				{
@@ -148,8 +176,8 @@ namespace Nova
 		}
 
 	private:
-		List<EventBinding<T>> m_Listeners;
-		List<EventBinding<T>>::iterator m_CurrentEventIterator;
+		List<WeakEventBinding<T>> m_Listeners;
+		List<WeakEventBinding<T>>::iterator m_CurrentEventIterator;
 		bool m_WasCurrentListenerErased = false;
 	};
 }
