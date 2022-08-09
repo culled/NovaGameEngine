@@ -22,9 +22,11 @@ namespace Nova
 	public:
 		NodeTree();
 
-		virtual int GetTickOrder() const { return 0; }
+		void CreateRootNode();
 
 	protected:
+		virtual int GetTickOrder() const { return 0; }
+
 		/// <summary>
 		/// Ticks this node tree
 		/// </summary>

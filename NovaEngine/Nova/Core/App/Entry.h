@@ -33,6 +33,7 @@ namespace Nova
 		catch(const Exception& ex)
 		{
 			// TODO: error handle for app
+			app->LogCore(ex.what(), LogLevel::Error);
 			exitCode = App::AppExitCode::UNHANDLED_EXCEPTION;
 		}
 

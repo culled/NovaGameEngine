@@ -20,7 +20,14 @@ namespace Nova
 
 		// Create the main node tree and add it to the loop
 		m_NodeTree = MakeRef<NodeTree>();
+		m_NodeTree->CreateRootNode();
 		m_MainLoop->AddTickListener(m_NodeTree);
+	}
+
+	App::~App()
+	{
+		// Release all modules
+		m_AppModules.clear();
 	}
 
 	TimeSpan App::GetRunningTime()
@@ -69,5 +76,10 @@ namespace Nova
 		m_MainLoop->Start();
 
 		return m_ExitCode;
+	}
+
+	void App::Quit()
+	{
+		m_MainLoop->Stop();
 	}
 }

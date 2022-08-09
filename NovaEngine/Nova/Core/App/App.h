@@ -65,12 +65,14 @@ namespace Nova
 		/// <summary>
 		/// The destructor for this application
 		/// </summary>
-		virtual ~App() = default;
+		virtual ~App();
 
 		/// <summary>
 		/// The function that will run all the tasks for this application. Once this returns the app is shutdown
 		/// </summary>
 		virtual AppExitCode Run();
+
+		virtual void Quit();
 
 		/// <summary>
 		/// Gets the name of this application
@@ -85,7 +87,7 @@ namespace Nova
 		/// <param name="executionOffset">A user-defined offset to apply on top of the module's default offset</param>
 		/// <param name="...args">Any extra parameters to pass to the constructor of the module class</param>
 		template<class T, typename ... Args>
-		void CreateModule(int executionOffset = 0, Args&& ...args)
+		Ref<T> CreateAndAddModule(int executionOffset = 0, Args&& ...args)
 		{
 			// Only accept classes that derive from AppModule
 			static_assert(std::is_base_of<AppModule, T>::value, "The class must inherit from AppModule");
@@ -93,6 +95,8 @@ namespace Nova
 			Ref<T> appModule = MakeRef<T>(executionOffset, std::forward<Args>(args)...);
 
 			AddModule(appModule);
+
+			return appModule;
 		}
 
 		void AddModule(Ref<AppModule> appModule);

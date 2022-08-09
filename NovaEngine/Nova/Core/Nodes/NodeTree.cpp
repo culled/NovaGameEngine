@@ -1,10 +1,15 @@
 #include "NodeTree.h"
 
+#include "Nova/Core/App/App.h"
 #include <algorithm>
+#include <format>
 
 namespace Nova
 {
 	NodeTree::NodeTree()
+	{}
+
+	void NodeTree::CreateRootNode()
 	{
 		m_RootNode = MakeRef<Node>("Root", GetRef<NodeTree>());
 	}
@@ -16,12 +21,15 @@ namespace Nova
 			node->Tick(deltaTime);
 		}
 
-		List<Ref<Node>> childNodes(node->m_Children);
-		std::sort(childNodes.begin(), childNodes.end(), Node::TickComparator);
-
-		for (const auto& child : childNodes)
+		if (node->m_Children.size() > 0)
 		{
-			TickNode(child, deltaTime);
+			List<Ref<Node>> childNodes(node->m_Children);
+			std::sort(childNodes.begin(), childNodes.end(), Node::TickComparator);
+
+			for (const auto& child : childNodes)
+			{
+				TickNode(child, deltaTime);
+			}
 		}
 	}
 

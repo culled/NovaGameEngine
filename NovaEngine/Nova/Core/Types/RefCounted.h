@@ -63,13 +63,17 @@ namespace Nova
 		/// </summary>
 		/// <returns>A new reference for this object</returns>
 		template<class V>
-		Ref<V> GetRef() { return std::dynamic_pointer_cast<V>(this->shared_from_this()); }
+		Ref<V> GetRef() { return std::dynamic_pointer_cast<V>(GetBaseRef(this)); }
 
 		/// <summary>
 		/// Gets a new weak reference for this object
 		/// </summary>
 		/// <returns>A new weak reference for this object</returns>
 		template<class V>
-		WeakRef<T> GetWeakRef() { return std::dynamic_pointer_cast<V>(this->weak_from_this()); }
+		WeakRef<T> GetWeakRef() { return std::dynamic_pointer_cast<V>(GetWeakBaseRef(this)); }
+
+	private:
+		Ref<T> GetBaseRef(std::enable_shared_from_this<T>* base) { return base->shared_from_this(); }
+		Ref<T> GetWeakBaseRef(std::enable_shared_from_this<T>* base) { return base->weak_from_this(); }
 	};
 }
