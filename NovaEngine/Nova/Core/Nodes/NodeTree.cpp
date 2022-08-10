@@ -6,10 +6,7 @@
 
 namespace Nova
 {
-	NodeTree::NodeTree()
-	{}
-
-	void NodeTree::CreateRootNode()
+	void NodeTree::Init()
 	{
 		m_RootNode = MakeRef<Node>("Root", GetRef<NodeTree>());
 	}

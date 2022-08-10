@@ -3,7 +3,7 @@
 
 namespace Nova
 {
-	Node::Node(const string& name) : 
+	Node::Node(const string& name) :
 		Node(name, nullptr)
 	{}
 

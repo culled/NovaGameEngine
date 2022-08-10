@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all nodes that live in a NodeTree
 	/// </summary>
-	NovaClass Node : public RefCounted<Node>
+	NovaClass Node : public RefCounted
 	{
 	public:
 		static bool TickComparator(const Ref<Node>& lhs, const Ref<Node>& rhs) { return lhs->m_TickPriority > rhs->m_TickPriority; }
@@ -48,6 +48,10 @@ namespace Nova
 		/// <param name="tickEnabled">True if this node should respond to ticks</param>
 		void SetTickEnabled(bool tickEnabled) { m_TickEnabled = tickEnabled; }
 
+		bool GetIsActive() const { return m_IsActive; }
+
+		void SetIsActive(bool isActive) { m_IsActive = isActive; }
+
 		/// <summary>
 		/// Sets the owning tree for this node
 		/// </summary>
@@ -72,10 +76,15 @@ namespace Nova
 		void RemoveChild(Ref<Node> node);
 
 	private:
+		void SetParent(Ref<Node> node);
+
+	private:
 		string m_Name;
 
 		bool m_TickEnabled = false;
 		int m_TickPriority = 0;
+
+		bool m_IsActive = true;
 
 		WeakRef<Node> m_Parent;
 		List<Ref<Node>> m_Children;

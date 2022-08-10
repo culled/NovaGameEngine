@@ -20,9 +20,7 @@ namespace Nova
 		static void TickNode(Ref<Node> node, double deltaTime);
 
 	public:
-		NodeTree();
-
-		void CreateRootNode();
+		virtual void Init() override;
 
 	protected:
 		virtual int GetTickOrder() const { return 0; }

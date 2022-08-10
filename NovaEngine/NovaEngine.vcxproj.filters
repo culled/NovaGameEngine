@@ -81,6 +81,24 @@
     <ClInclude Include="Nova\Core\Types\RefCounted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Nova\Core\Modules\Display\DisplayModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Modules\Display\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Modules\AppModuleException.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Nova\Core\App\App.cpp">
@@ -110,5 +128,22 @@
     <ClCompile Include="Nova\Core\Modules\AppModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Modules\Display\DisplayModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Modules\AppModuleException.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="NovaEngine.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

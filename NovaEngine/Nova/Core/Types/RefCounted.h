@@ -2,6 +2,7 @@
 
 #include "Nova/Core/Engine.h"
 
+#include <type_traits>
 #include <memory>
 
 namespace Nova
@@ -13,18 +14,60 @@ namespace Nova
 	using Ref = std::shared_ptr<T>;
 
 	/// <summary>
+	/// A weak reference to a managed object
+	/// </summary>
+	template<typename T>
+	using WeakRef = std::weak_ptr<T>;
+
+	/// <summary>
+	/// Base class for all reference-counted objects
+	/// </summary>
+	NovaClass RefCounted : public std::enable_shared_from_this<RefCounted>
+	{
+	public:
+		virtual ~RefCounted() = default;
+
+		virtual void Init() {}
+
+		/// <summary>
+		/// Gets a new reference for this object
+		/// </summary>
+		/// <returns>A new reference for this object</returns>
+		template<typename T>
+		Ref<T> GetRef()
+		{
+			return std::dynamic_pointer_cast<T>(this->shared_from_this());
+		}
+
+		/// <summary>
+		/// Gets a new weak reference for this object
+		/// </summary>
+		/// <returns>A new weak reference for this object</returns>
+		template<typename T>
+		WeakRef<T> GetWeakRef()
+		{
+			return std::dynamic_pointer_cast<T>(this->shared_from_this());
+		}
+	};
+
+	/// <summary>
 	/// Creates a managed object that can be shared
 	/// </summary>
 	/// <param name="...args">The arguments to pass to the class's constructor</param>
 	/// <returns>A reference to the created object</returns>
 	template<typename T, typename ... Args>
-	inline Ref<T> MakeRef(Args&& ...args) { return std::make_shared<T>(std::forward<Args>(args)...); }
+	inline Ref<T> MakeRef(Args&& ...args)
+	{
+		Ref<T> obj = std::make_shared<T>(std::forward<Args>(args)...);
 
-	/// <summary>
-	/// A weak reference to a managed object
-	/// </summary>
-	template<typename T>
-	using WeakRef = std::weak_ptr<T>;
+		// Only enabled if T is derived from RefCounted
+		if constexpr (std::is_base_of_v<RefCounted, T>)
+		{
+			obj.get()->Init();
+		}
+
+		return obj;
+	}
 
 	/// <summary>
 	/// Creates a weak reference from a reference
@@ -48,32 +91,4 @@ namespace Nova
 	/// <returns>The managed object</returns>
 	template<typename T, typename ... Args>
 	inline Exclusive<T> MakeExclusive(Args&& ...args) { return std::make_unique<T>(std::forward<Args>(args)...); }
-
-	/// <summary>
-	/// Base class for all reference-counted objects
-	/// </summary>
-	template<typename T>
-	NovaClass RefCounted : public std::enable_shared_from_this<T>
-	{
-	public:
-		virtual ~RefCounted() = default;
-
-		/// <summary>
-		/// Gets a new reference for this object
-		/// </summary>
-		/// <returns>A new reference for this object</returns>
-		template<class V>
-		Ref<V> GetRef() { return std::dynamic_pointer_cast<V>(GetBaseRef(this)); }
-
-		/// <summary>
-		/// Gets a new weak reference for this object
-		/// </summary>
-		/// <returns>A new weak reference for this object</returns>
-		template<class V>
-		WeakRef<T> GetWeakRef() { return std::dynamic_pointer_cast<V>(GetWeakBaseRef(this)); }
-
-	private:
-		Ref<T> GetBaseRef(std::enable_shared_from_this<T>* base) { return base->shared_from_this(); }
-		Ref<T> GetWeakBaseRef(std::enable_shared_from_this<T>* base) { return base->weak_from_this(); }
-	};
 }

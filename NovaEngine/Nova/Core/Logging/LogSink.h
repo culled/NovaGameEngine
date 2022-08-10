@@ -7,7 +7,7 @@
 
 namespace Nova
 {
-	NovaClass LogSink
+	NovaClass LogSink : public RefCounted
 	{
 	public:
 		LogSink() = default;
