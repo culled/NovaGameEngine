@@ -4,6 +4,8 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/AppModule.h"
+#include "Nova/Core/Events/Event.h"
+#include "Nova/Core/Events/EventSource.h"
 #include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
 #include "Nova/Core/Nodes/NodeTree.h"
@@ -11,6 +13,11 @@
 
 namespace Nova
 {
+	NovaStruct AppQuittingEvent : public Event
+	{
+		bool ShouldQuit = true;
+	};
+
 	NovaClass App
 	{
 	public:
@@ -112,6 +119,10 @@ namespace Nova
 		/// </summary>
 		/// <returns>An instance of a MainLoop</returns>
 		virtual Exclusive<MainLoop> CreateMainLoop();
+
+	public:
+		EventSource<AppQuittingEvent> OnAppQuitting;
+		EventSource<Event> OnAppQuit;
 
 	protected:
 		string m_Name;

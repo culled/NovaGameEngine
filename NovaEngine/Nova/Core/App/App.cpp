@@ -20,7 +20,7 @@ namespace Nova
 
 		// Create the main node tree and add it to the loop
 		m_NodeTree = MakeRef<NodeTree>();
-		m_NodeTree->CreateRootNode();
+		//m_NodeTree->CreateRootNode();
 		m_MainLoop->AddTickListener(m_NodeTree);
 	}
 
@@ -80,6 +80,13 @@ namespace Nova
 
 	void App::Quit()
 	{
-		m_MainLoop->Stop();
+		Ref<AppQuittingEvent> quittingEvent = MakeRef<AppQuittingEvent>();
+		OnAppQuitting.Emit(quittingEvent);
+
+		if (quittingEvent->ShouldQuit)
+		{
+			OnAppQuit.Emit(MakeRef<Event>());
+			m_MainLoop->Stop();
+		}
 	}
 }

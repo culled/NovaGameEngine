@@ -20,6 +20,30 @@ namespace Nova
 		using EventCallback = std::function<bool(Ref<T>)>;
 
 		/// <summary>
+		/// Creates a raw binding to a member function on the given object
+		/// </summary>
+		/// <param name="objPtr">The raw object to bind to</param>
+		/// <param name="method">The function to bind to</param>
+		template<typename U>
+		WeakEventBinding(U* objPtr, void (U::* method)(Ref<T>))
+		{
+			m_Callback = [objPtr, method](Ref<T> e)
+			{
+				if (objPtr)
+				{
+					std::invoke(method, objPtr, e);
+					return true;
+				}
+
+				return false;
+			};
+
+			// Store some info about the object and function for possible comparisons
+			m_ObjHash = GetObjHash(objPtr);
+			m_FuncHash = GetFuncHash(method);
+		}
+
+		/// <summary>
 		/// Creates a weak binding to a member function on the given object
 		/// </summary>
 		/// <param name="obj">The object to bind to</param>
@@ -44,7 +68,7 @@ namespace Nova
 			};
 
 			// Store some info about the object and function for possible comparisons
-			m_ObjHash = GetObjHash(obj);
+			m_ObjHash = GetObjHash(obj.get());
 			m_FuncHash = GetFuncHash(method);
 		}
 
@@ -65,9 +89,21 @@ namespace Nova
 		/// <param name="method">The function on the object</param>
 		/// <returns>True if this binding is bound to the function on the object</returns>
 		template<typename U>
+		bool Equals(U* objPtr, void (U::* method)(Ref<T>)) const
+		{
+			return GetObjHash(objPtr) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
+		}
+
+		/// <summary>
+		/// Checks if the given object and member function are the same ones that this binding is bound to
+		/// </summary>
+		/// <param name="obj">The object</param>
+		/// <param name="method">The function on the object</param>
+		/// <returns>True if this binding is bound to the function on the object</returns>
+		template<typename U>
 		bool Equals(Ref<U> obj, void (U::* method)(Ref<T>)) const
 		{
-			return GetObjHash(obj) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
+			return GetObjHash(obj.get()) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
 		}
 
 	private:
@@ -75,10 +111,10 @@ namespace Nova
 		/// Calculates a hash for a given object
 		/// </summary>
 		template<typename U>
-		size_t GetObjHash(Ref<U> obj) const
+		size_t GetObjHash(U* objPtr) const
 		{
 			std::hash<U*> h;
-			return h(obj.get());
+			return h(objPtr);
 		}
 
 		/// <summary>
@@ -105,6 +141,34 @@ namespace Nova
 	{
 	public:
 		/// <summary>
+		/// Connects the raw member function as a listener to this event source
+		/// </summary>
+		/// <param name="objectPtr">The raw object that the function belongs to</param>
+		/// <param name="method">The address of the function</param>
+		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
+		void Connect(U* objectPtr, void (U::* method)(Ref<V>))
+		{
+			// Create a binding with the object and member function
+			AddBinding(WeakEventBinding(objectPtr, method));
+		}
+
+		/// <summary>
+		/// Disconnects the raw member function from listening to this event source
+		/// </summary>
+		/// <param name="objectPtr">The raw object that the function belongs to</param>
+		/// <param name="method">The address of the function</param>
+		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
+		void Disconnect(U* objectPtr, void (U::* method)(Ref<V>))
+		{
+			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [objectPtr, method](const WeakEventBinding<T>& binding)
+				{
+					return binding.Equals(objectPtr, method);
+				});
+
+			TryRemoveBinding(it);
+		}
+
+		/// <summary>
 		/// Connects the member function as a listener to this event source
 		/// </summary>
 		/// <param name="object">The object that the function belongs to</param>
@@ -113,8 +177,7 @@ namespace Nova
 		void Connect(Ref<U> object, void (U::* method)(Ref<V>))
 		{
 			// Create a binding with the object and member function
-			WeakEventBinding listener(object, method);
-			m_Listeners.emplace(m_Listeners.begin(), listener);
+			AddBinding(WeakEventBinding(object, method));
 		}
 
 		/// <summary>
@@ -130,18 +193,7 @@ namespace Nova
 					return binding.Equals(object, method);
 				});
 			
-			// If we're not at the end of the list, we found a match
-			if (it != m_Listeners.end())
-			{
-				// If this disconnect occured due to the event emitting, make sure the next event won't be skipped
-				if (m_CurrentEventIterator == it)
-					m_WasCurrentListenerErased = true;
-			
-				auto newIt = m_Listeners.erase(it);
-			
-				if(m_WasCurrentListenerErased)
-					m_CurrentEventIterator = newIt;
-			}
+			TryRemoveBinding(it);
 		}
 
 		/// <summary>
@@ -173,6 +225,27 @@ namespace Nova
 				if (!m_WasCurrentListenerErased)
 					m_CurrentEventIterator++;
 			}
+		}
+
+	private:
+		void AddBinding(WeakEventBinding<T> listener)
+		{
+			m_Listeners.emplace(m_Listeners.begin(), listener);
+		}
+
+		void TryRemoveBinding(List<WeakEventBinding<T>>::iterator it)
+		{
+			if (it == m_Listeners.end())
+				return;
+
+			// If this disconnect occured due to the event emitting, make sure the next event won't be skipped
+			if (m_CurrentEventIterator == it)
+				m_WasCurrentListenerErased = true;
+
+			auto newIt = m_Listeners.erase(it);
+
+			if (m_WasCurrentListenerErased)
+				m_CurrentEventIterator = newIt;
 		}
 
 	private:
