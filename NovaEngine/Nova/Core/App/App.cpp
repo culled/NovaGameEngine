@@ -4,8 +4,6 @@
 
 namespace Nova
 {
-	App* App::sp_AppInstance = nullptr;
-
 	App::App(const string& name) :
 		m_Name(name), m_StartTime(TimeSpan::Now()), m_ExitCode(AppExitCode::SUCCESS)
 	{
@@ -20,7 +18,6 @@ namespace Nova
 
 		// Create the main node tree and add it to the loop
 		m_NodeTree = MakeRef<NodeTree>();
-		//m_NodeTree->CreateRootNode();
 		m_MainLoop->AddTickListener(m_NodeTree);
 	}
 
@@ -50,10 +47,34 @@ namespace Nova
 		sp_AppInstance->m_CoreLogger->Write(message, level);
 	}
 
-	void App::CreateDefaultLogSinks()
+	App* App::sp_AppInstance = nullptr;
+
+	App::AppExitCode App::Run()
 	{
-		m_CoreLogger->CreateSink<ConsoleLogSink>();
-		m_AppLogger->CreateSink<ConsoleLogSink>();
+		LogCore("App::Run(): Starting MainLoop", LogLevel::Verbose);
+		m_MainLoop->Start();
+
+		OnAppQuit.EmitAnonymous();
+
+		return m_ExitCode;
+	}
+
+	void App::Quit(AppExitCode exitCode)
+	{
+		AppQuittingEvent quittingEvent;
+		OnAppQuitting.Emit(quittingEvent);
+
+		if (quittingEvent.ShouldQuit)
+		{	
+			m_ExitCode = exitCode;
+			m_MainLoop->Stop();
+		}
+	}
+
+	void App::CreateDefaultLogSinks(LogLevel coreLevel, LogLevel appLevel)
+	{
+		m_CoreLogger->CreateSink<ConsoleLogSink>(coreLevel);
+		m_AppLogger->CreateSink<ConsoleLogSink>(appLevel);
 
 		LogCore("App::CreateDefaultLogSinks(): Core logger created", LogLevel::Verbose);
 		Log("App::CreateDefaultLogSinks(): App logger created", LogLevel::Verbose);
@@ -62,31 +83,5 @@ namespace Nova
 	Exclusive<MainLoop> App::CreateMainLoop()
 	{
 		return MakeExclusive<MainLoop>();
-	}
-
-	void App::AddModule(Ref<AppModule> appModule)
-	{
-		m_AppModules.push_back(appModule);
-		m_MainLoop->AddTickListener(appModule);
-	}
-
-	App::AppExitCode App::Run()
-	{
-		LogCore("App::Run(): Starting MainLoop", LogLevel::Verbose);
-		m_MainLoop->Start();
-
-		return m_ExitCode;
-	}
-
-	void App::Quit()
-	{
-		Ref<AppQuittingEvent> quittingEvent = MakeRef<AppQuittingEvent>();
-		OnAppQuitting.Emit(quittingEvent);
-
-		if (quittingEvent->ShouldQuit)
-		{
-			OnAppQuit.Emit(MakeRef<Event>());
-			m_MainLoop->Stop();
-		}
 	}
 }

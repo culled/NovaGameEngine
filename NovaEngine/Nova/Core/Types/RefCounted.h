@@ -10,14 +10,28 @@ namespace Nova
 	/// <summary>
 	/// A sharable reference to an object
 	/// </summary>
-	template<typename T>
+	template <typename T>
 	using Ref = std::shared_ptr<T>;
 
 	/// <summary>
-	/// A weak reference to a managed object
+	/// A weak (not counted) reference to a managed object
+	/// </summary>
+	template <typename T>
+	using WeakRef = std::weak_ptr<T>;
+
+	/// <summary>
+	/// An exclusive reference to an object
 	/// </summary>
 	template<typename T>
-	using WeakRef = std::weak_ptr<T>;
+	using Exclusive = std::unique_ptr<T>;
+
+	/// <summary>
+	/// Creates a managed object that cannot be shared
+	/// </summary>
+	/// <param name="...args">The arguments to pass to the class's constructor</param>
+	/// <returns>The managed object</returns>
+	template<typename T, typename ... Args>
+	inline Exclusive<T> MakeExclusive(Args&& ...args) { return std::make_unique<T>(std::forward<Args>(args)...); }
 
 	/// <summary>
 	/// Base class for all reference-counted objects
@@ -27,68 +41,68 @@ namespace Nova
 	public:
 		virtual ~RefCounted() = default;
 
+	public:
+		/// <summary>
+		/// Called when the RefCounted object has been constructed. It's safe to use GetSelfRef/GetSelfWeakRef now
+		/// </summary>
 		virtual void Init() {}
 
+	protected:
 		/// <summary>
-		/// Gets a new reference for this object
+		/// Gets a reference to this object. NOTE: cannot be used in the the object's constructor
 		/// </summary>
-		/// <returns>A new reference for this object</returns>
+		/// <returns>A reference to this object</returns>
+		//template<typename T, typename = std::enable_if_t<std::is_base_of_v<RefCounted, T>>>
 		template<typename T>
-		Ref<T> GetRef()
+		Ref<T> GetSelfRef()
 		{
 			return std::dynamic_pointer_cast<T>(this->shared_from_this());
 		}
 
 		/// <summary>
-		/// Gets a new weak reference for this object
+		/// Gets a new weak reference to this object. NOTE: cannot be used in the the object's constructor
 		/// </summary>
-		/// <returns>A new weak reference for this object</returns>
+		/// <returns>A new weak reference to this object</returns>
+		//template<typename T, typename = std::enable_if_t<std::is_base_of_v<RefCounted, T>>>
 		template<typename T>
-		WeakRef<T> GetWeakRef()
+		WeakRef<T> GetSelfWeakRef()
 		{
-			return std::dynamic_pointer_cast<T>(this->shared_from_this());
+			return GetSelfRef<T>();
 		}
 	};
 
 	/// <summary>
-	/// Creates a managed object that can be shared
+	/// Creates a RefCounted object
 	/// </summary>
 	/// <param name="...args">The arguments to pass to the class's constructor</param>
 	/// <returns>A reference to the created object</returns>
 	template<typename T, typename ... Args>
 	inline Ref<T> MakeRef(Args&& ...args)
 	{
+		static_assert(std::is_base_of<RefCounted, T>::value, "Only RefCounted objects can be created");
+
 		Ref<T> obj = std::make_shared<T>(std::forward<Args>(args)...);
-
-		// Only enabled if T is derived from RefCounted
-		if constexpr (std::is_base_of_v<RefCounted, T>)
-		{
-			obj.get()->Init();
-		}
-
+		obj->Init();
 		return obj;
 	}
 
 	/// <summary>
-	/// Creates a weak reference from a reference
+	/// Creates a weak (not counted) reference from a Ref
 	/// </summary>
-	/// <param name="ref">The reference to make the weak reference from</param>
-	/// <returns>A weak reference to the original reference</returns>
+	/// <param name="ref">The object reference</param>
+	/// <returns>A weak reference to the object</returns>
 	template<typename T>
-	inline WeakRef<T> MakeWeakRef(Ref<T> ref) { return std::weak_ptr<T>(ref); }
+	inline WeakRef<T> MakeWeakRef(Ref<T> ref)
+	{
+		static_assert(std::is_base_of<RefCounted, T>::value, "Only RefCounted objects can be created");
+
+		return std::weak_ptr<T>(ref);
+	}
 
 	/// <summary>
-	/// An exclusive reference to an object
+	/// Creates an empty weak reference
 	/// </summary>
-	/// <typeparam name="T"></typeparam>
+	/// <returns>An empty weak reference</returns>
 	template<typename T>
-	using Exclusive = std::unique_ptr<T>;
-
-	/// <summary>
-	/// Creates a managed object that cannot be easily shared
-	/// </summary>
-	/// <param name="...args">The arguments to pass to the class's constructor</param>
-	/// <returns>The managed object</returns>
-	template<typename T, typename ... Args>
-	inline Exclusive<T> MakeExclusive(Args&& ...args) { return std::make_unique<T>(std::forward<Args>(args)...); }
+	inline WeakRef<T> MakeWeakRef() { return std::weak_ptr<T>(); }
 }

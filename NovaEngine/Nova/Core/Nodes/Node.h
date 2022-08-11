@@ -2,6 +2,8 @@
 
 #include "Nova/Core/Engine.h"
 
+#include "Nova/Core/Events/TickListener.h"
+
 namespace Nova
 {
 	class NodeTree;
@@ -9,11 +11,8 @@ namespace Nova
 	/// <summary>
 	/// Base class for all nodes that live in a NodeTree
 	/// </summary>
-	NovaClass Node : public RefCounted
+	NovaClass Node : public TickListener
 	{
-	public:
-		static bool TickComparator(const Ref<Node>& lhs, const Ref<Node>& rhs) { return lhs->m_TickPriority > rhs->m_TickPriority; }
-
 	public:
 		/// <summary>
 		/// Constructs a node with the given name and no tree owner
@@ -21,47 +20,47 @@ namespace Nova
 		/// <param name="name">The name for this node</param>
 		Node(const string& name);
 
-		/// <summary>
-		/// Constructs a node with the given name and tree owner
-		/// </summary>
-		/// <param name="name">The name for this node</param>
-		/// <param name="tree">The tree that will own this node</param>
-		Node(const string& name, Ref<NodeTree> tree);
-
 		virtual ~Node() = default;
 
+	// TickListener ----------
+	protected:
+		virtual int GetTickOrder() const override { return m_TickOrder; }
+
+		virtual void Tick(double deltaTime) override {}
+	// TickListener ----------
+
+	public:
 		/// <summary>
-		/// Ticks this node
+		/// Comparator function to compare tick priorities between 2 nodes
 		/// </summary>
-		/// <param name="deltaTime">The delta time to use for this tick</param>
-		virtual void Tick(double deltaTime);
+		/// <param name="lhs">The first node</param>
+		/// <param name="rhs">The second node</param>
+		static bool TickPriorityComparator(const Ref<Node>& lhs, const Ref<Node>& rhs);
+	
+	public:
+		/// <summary>
+		/// Sets if this node is active
+		/// </summary>
+		/// <param name="isActive">The active state of this node</param>
+		void SetIsActive(bool isActive);
 
 		/// <summary>
-		/// Gets if this node can be ticked
+		/// Gets if this node is active
 		/// </summary>
-		/// <returns>True if this node can be ticked</returns>
-		bool GetTickEnabled() const { return m_TickEnabled; }
-
-		/// <summary>
-		/// Enables/disables ticking for this node
-		/// </summary>
-		/// <param name="tickEnabled">True if this node should respond to ticks</param>
-		void SetTickEnabled(bool tickEnabled) { m_TickEnabled = tickEnabled; }
-
+		/// <returns>True if this node is active</returns>
 		bool GetIsActive() const { return m_IsActive; }
 
-		void SetIsActive(bool isActive) { m_IsActive = isActive; }
+		/// <summary>
+		/// Gets if this node is active in the tree. Will return false if a parent of this node is in-active, even if this node itself is active
+		/// </summary>
+		/// <returns>True if this node is active in the tree</returns>
+		bool GetIsActiveInTree() const;
 
 		/// <summary>
 		/// Sets the owning tree for this node
 		/// </summary>
 		/// <param name="tree">The owning tree for this node</param>
-		void SetTree(Ref<NodeTree> tree);
-
-		/// <summary>
-		/// Clears the owning tree of this node
-		/// </summary>
-		void ClearTree();
+		void SetTree(WeakRef<NodeTree> tree);
 
 		/// <summary>
 		/// Adds a node as a child of this node
@@ -76,19 +75,26 @@ namespace Nova
 		void RemoveChild(Ref<Node> node);
 
 	private:
-		void SetParent(Ref<Node> node);
+		void SetParent(WeakRef<Node> node);
 
 	private:
+		// The name of this node
 		string m_Name;
 
-		bool m_TickEnabled = false;
-		int m_TickPriority = 0;
+		// The order of ticking for this node
+		int m_TickOrder = 0;
 
+		// This node's active state
 		bool m_IsActive = true;
 
+		// The parent of this node
 		WeakRef<Node> m_Parent;
+
+		// The tree this node located in
+		WeakRef<NodeTree> m_Tree;
+
+		// A list of this node's children
 		List<Ref<Node>> m_Children;
-		Ref<NodeTree> m_Tree;
 
 		friend NodeTree;
 	};

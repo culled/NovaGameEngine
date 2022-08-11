@@ -17,7 +17,11 @@ namespace Nova
 	NovaClass WeakEventBinding
 	{
 	public:
-		using EventCallback = std::function<bool(Ref<T>)>;
+		using EventCallback = std::function<void(T&)>;
+		using EventValidCallback = std::function<bool()>;
+
+		template<typename U>
+		using EventFuncDelegate = void (U::*)(T&);
 
 		/// <summary>
 		/// Creates a raw binding to a member function on the given object
@@ -25,17 +29,19 @@ namespace Nova
 		/// <param name="objPtr">The raw object to bind to</param>
 		/// <param name="method">The function to bind to</param>
 		template<typename U>
-		WeakEventBinding(U* objPtr, void (U::* method)(Ref<T>))
+		WeakEventBinding(U* objPtr, EventFuncDelegate<U> method)
 		{
-			m_Callback = [objPtr, method](Ref<T> e)
+			m_Callback = [objPtr, method](T& e)
 			{
 				if (objPtr)
 				{
 					std::invoke(method, objPtr, e);
-					return true;
 				}
+			};
 
-				return false;
+			m_ValidCallback = [objPtr]()
+			{
+				return objPtr != nullptr;
 			};
 
 			// Store some info about the object and function for possible comparisons
@@ -49,22 +55,24 @@ namespace Nova
 		/// <param name="obj">The object to bind to</param>
 		/// <param name="method">The function to bind to</param>
 		template<typename U>
-		WeakEventBinding(Ref<U> obj, void (U::* method)(Ref<T>))
+		WeakEventBinding(Ref<U> obj, EventFuncDelegate<U> method)
 		{
 			// Create a weak reference to the object and pass that to a lambda function so we can call the proper function while the object exists
 			WeakRef<U> weakRef = MakeWeakRef<U>(obj);
 
-			m_Callback = [weakRef, method](Ref<T> e)
+			m_Callback = [weakRef, method](T& e)
 			{ 
 				auto ref = weakRef.lock();
 
 				if (ref)
 				{
 					std::invoke(method, ref, e);
-					return true;
 				}
+			};
 
-				return false;
+			m_ValidCallback = [weakRef]()
+			{
+				return weakRef.lock() != nullptr;
 			};
 
 			// Store some info about the object and function for possible comparisons
@@ -73,13 +81,17 @@ namespace Nova
 		}
 
 		/// <summary>
-		/// Attempts to call the bound function. Will return false if the call fails (i.e. the object was deleted)
+		/// Attempts to call the bound function
 		/// </summary>
 		/// <param name="e">The event</param>
-		/// <returns>True if the call was successful</returns>
-		bool Call(Ref<T> e)
+		void Call(T& e)
 		{
-			return m_Callback(e);
+			m_Callback(e);
+		}
+
+		bool IsValid() const
+		{
+			return m_ValidCallback();
 		}
 
 		/// <summary>
@@ -89,7 +101,7 @@ namespace Nova
 		/// <param name="method">The function on the object</param>
 		/// <returns>True if this binding is bound to the function on the object</returns>
 		template<typename U>
-		bool Equals(U* objPtr, void (U::* method)(Ref<T>)) const
+		bool Equals(U* objPtr, EventFuncDelegate<U> method) const
 		{
 			return GetObjHash(objPtr) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
 		}
@@ -101,7 +113,7 @@ namespace Nova
 		/// <param name="method">The function on the object</param>
 		/// <returns>True if this binding is bound to the function on the object</returns>
 		template<typename U>
-		bool Equals(Ref<U> obj, void (U::* method)(Ref<T>)) const
+		bool Equals(Ref<U> obj, EventFuncDelegate<U> method) const
 		{
 			return GetObjHash(obj.get()) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
 		}
@@ -121,7 +133,7 @@ namespace Nova
 		/// Calculates a hash for a given function
 		/// </summary>	
 		template<typename U>
-		size_t GetFuncHash(void (U::* method)(Ref<T>)) const
+		size_t GetFuncHash(EventFuncDelegate<U> method) const
 		{
 			// TODO: Make this actually check if the method has the same address as the stored method
 			return 0;
@@ -131,6 +143,7 @@ namespace Nova
 		size_t m_ObjHash;
 		size_t m_FuncHash;
 		EventCallback m_Callback;
+		EventValidCallback m_ValidCallback;
 	};
 
 	/// <summary>
@@ -140,16 +153,19 @@ namespace Nova
 	NovaClass EventSource
 	{
 	public:
+		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
+		using EventFuncDelegate = void (U::*)(V&);
+
 		/// <summary>
 		/// Connects the raw member function as a listener to this event source
 		/// </summary>
 		/// <param name="objectPtr">The raw object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Connect(U* objectPtr, void (U::* method)(Ref<V>))
+		void Connect(U* objectPtr, EventFuncDelegate<U, V> method)
 		{
 			// Create a binding with the object and member function
-			AddBinding(WeakEventBinding(objectPtr, method));
+			AddBinding(WeakEventBinding<V>(objectPtr, method));
 		}
 
 		/// <summary>
@@ -158,14 +174,14 @@ namespace Nova
 		/// <param name="objectPtr">The raw object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Disconnect(U* objectPtr, void (U::* method)(Ref<V>))
+		void Disconnect(U* objectPtr, EventFuncDelegate<U, V> method)
 		{
 			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [objectPtr, method](const WeakEventBinding<T>& binding)
 				{
 					return binding.Equals(objectPtr, method);
 				});
 
-			TryRemoveBinding(it);
+			RemoveBinding(it);
 		}
 
 		/// <summary>
@@ -174,10 +190,10 @@ namespace Nova
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Connect(Ref<U> object, void (U::* method)(Ref<V>))
+		void Connect(Ref<U> object, EventFuncDelegate<U, V> method)
 		{
 			// Create a binding with the object and member function
-			AddBinding(WeakEventBinding(object, method));
+			AddBinding(WeakEventBinding<V>(object, method));
 		}
 
 		/// <summary>
@@ -186,71 +202,96 @@ namespace Nova
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Disconnect(Ref<U> object, void (U::* method)(Ref<V>))
+		void Disconnect(Ref<U> object, EventFuncDelegate<U, V> method)
 		{
 			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [object, method](const WeakEventBinding<T>& binding)
 				{
 					return binding.Equals(object, method);
 				});
 			
-			TryRemoveBinding(it);
+			RemoveBinding(it);
 		}
 
 		/// <summary>
 		/// Emits the given event to all listeners, or until its propagation is stopped
 		/// </summary>
 		/// <param name="e">The event to emit to listeners</param>
-		void Emit(Ref<T> e)
+		void Emit(T& e)
 		{
-			m_CurrentEventIterator = m_Listeners.begin();
-			
-			while(m_CurrentEventIterator != m_Listeners.end())
+			// Make a copy of the list in-case it changes during the event emitting
+			List<WeakEventBinding<T>> listeners(m_Listeners);
+
+			for (WeakEventBinding<T> listener : listeners)
 			{
-				m_WasCurrentListenerErased = false;
+				listener.Call(e);
 
-				WeakEventBinding<T> binding = *m_CurrentEventIterator;
-
-				if (!binding.Call(e))
-				{
-					// The current listener is no more, so erase it
-					m_CurrentEventIterator = m_Listeners.erase(m_CurrentEventIterator);
-					m_WasCurrentListenerErased = true;
-				}
-			
 				// Stop propagating if the event requests it
-				if (!e->Propagate)
+				if (!e.Propagate)
 					break;
-			
-				// If the current listener was erased, then the next one will take its spot and we shouldn't increment
-				if (!m_WasCurrentListenerErased)
-					m_CurrentEventIterator++;
+			}
+
+			RemoveInvalidBindings();
+		}
+
+		/// <summary>
+		/// Emits an event to all listeners, or until its propagation is stopped. Use this when you don't care about what the event returns
+		/// </summary>
+		/// <param name="args">The arguments to pass to the constructor of the event</param>
+		template<typename ... Args>
+		void EmitAnonymous(Args&& ... args)
+		{
+			T e(std::forward<Args>(args)...);
+			Emit(e);
+		}
+
+	private:
+		/// <summary>
+		/// Adds a WeakEventBinding to the list of listeners
+		/// </summary>
+		/// <param name="listener">The binding to add</param>
+		void AddBinding(WeakEventBinding<T> listener)
+		{
+			// Place at the front so recent listeners receive the event before later ones
+			m_Listeners.emplace(m_Listeners.begin(), listener);
+		}
+
+		/// <summary>
+		/// Removes the listener from the list of listeners
+		/// </summary>
+		/// <param name="it">The iterator of the listener to remove</param>
+		void RemoveBinding(List<WeakEventBinding<T>>::iterator it)
+		{
+			// Don't remove if the iterator isn't in the list
+			if (it == m_Listeners.end())
+				return;
+
+			m_Listeners.erase(it);
+		}
+
+		/// <summary>
+		/// Removes invalid bindings from the list of listeners
+		/// </summary>
+		void RemoveInvalidBindings()
+		{
+			auto it = m_Listeners.begin();
+
+			while (it != m_Listeners.end())
+			{
+				WeakEventBinding<T> binding = *it;
+
+				if (!binding.IsValid())
+				{
+					it = m_Listeners.erase(it);
+				}
+				else
+				{
+					it++;
+				}
 			}
 		}
 
 	private:
-		void AddBinding(WeakEventBinding<T> listener)
-		{
-			m_Listeners.emplace(m_Listeners.begin(), listener);
-		}
-
-		void TryRemoveBinding(List<WeakEventBinding<T>>::iterator it)
-		{
-			if (it == m_Listeners.end())
-				return;
-
-			// If this disconnect occured due to the event emitting, make sure the next event won't be skipped
-			if (m_CurrentEventIterator == it)
-				m_WasCurrentListenerErased = true;
-
-			auto newIt = m_Listeners.erase(it);
-
-			if (m_WasCurrentListenerErased)
-				m_CurrentEventIterator = newIt;
-		}
-
-	private:
+		// The list of bindings to listeners
 		List<WeakEventBinding<T>> m_Listeners;
-		List<WeakEventBinding<T>>::iterator m_CurrentEventIterator;
-		bool m_WasCurrentListenerErased = false;
 	};
 }

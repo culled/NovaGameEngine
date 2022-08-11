@@ -2,16 +2,20 @@
 
 #include "Nova/Core/Engine.h"
 
-
 namespace Nova
 {
+	/// <summary>
+	/// Base struct for all events
+	/// </summary>
 	NovaStruct Event
 	{
-	public:
+		/// <summary>
+		/// Constructor for the event
+		/// </summary>
 		Event();
 		virtual ~Event() = default;
 
-	public:	
+		// If set to false, this event will stop propagating to listeners
 		bool Propagate = true;
 	};
 }

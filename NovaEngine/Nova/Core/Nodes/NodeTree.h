@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
+
 #include "Nova/Core/Events/TickListener.h"
 #include "Node.h"
 
@@ -12,6 +13,9 @@ namespace Nova
 	NovaClass NodeTree : public TickListener
 	{
 	public:
+		virtual ~NodeTree() = default;
+
+	public:
 		/// <summary>
 		/// Ticks the given node and all its children
 		/// </summary>
@@ -19,19 +23,25 @@ namespace Nova
 		/// <param name="deltaTime">The delta time to use for the tick</param>
 		static void TickNode(Ref<Node> node, double deltaTime);
 
+	// RefCounted ----------
 	public:
 		virtual void Init() override;
 
+	// RefCounted ----------
+
+	// TickListener ----------
 	protected:
 		virtual int GetTickOrder() const { return 0; }
-
 		/// <summary>
 		/// Ticks this node tree
 		/// </summary>
 		/// <param name="deltaTime">The delta time to use for the tick</param>
 		virtual void Tick(double deltaTime) override;
 
+	// TickListener ----------
+
 	private:
+		// The root node of this tree
 		Ref<Node> m_RootNode;
 	};
 }

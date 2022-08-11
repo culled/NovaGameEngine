@@ -4,12 +4,6 @@
 
 namespace Nova
 {
-	const uint64_t TimeSpan::USecsPerMillisecond = 1000;
-	const uint64_t TimeSpan::USecsPerSecond = 1000000;
-	const uint64_t TimeSpan::USecsPerMinute = 60000000;
-	const uint64_t TimeSpan::USecsPerHour = 3600000000;
-	const uint64_t TimeSpan::USecsPerDay = 86400000000;
-
 	TimeSpan::TimeSpan() : TimeSpan(0)
 	{}
 
@@ -23,6 +17,12 @@ namespace Nova
 
 		return TimeSpan(std::chrono::time_point_cast<std::chrono::microseconds>(now).time_since_epoch().count());
 	}
+
+	const uint64_t TimeSpan::USecsPerMillisecond = 1000;
+	const uint64_t TimeSpan::USecsPerSecond = 1000000;
+	const uint64_t TimeSpan::USecsPerMinute = 60000000;
+	const uint64_t TimeSpan::USecsPerHour = 3600000000;
+	const uint64_t TimeSpan::USecsPerDay = 86400000000;
 
 	uint64_t TimeSpan::GetMicroseconds() const
 	{

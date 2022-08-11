@@ -73,12 +73,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PublicIncludeDirectories>$(SolutionDir)/NovaEngine;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PublicIncludeDirectories>$(SolutionDir)/NovaEngine;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)\int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,10 +155,10 @@
     <ClInclude Include="Nova\Core\Logging\LogSink.h" />
     <ClInclude Include="Nova\Core\Modules\AppModule.h" />
     <ClInclude Include="Nova\Core\Modules\AppModuleException.h" />
-    <ClInclude Include="Nova\Core\Modules\Display\DisplayModule.h" />
-    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.h" />
-    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.h" />
-    <ClInclude Include="Nova\Core\Modules\Display\Window.h" />
+    <ClInclude Include="Nova\Core\Modules\Windowing\WindowingModule.h" />
+    <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.h" />
+    <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.h" />
+    <ClInclude Include="Nova\Core\Modules\Windowing\Window.h" />
     <ClInclude Include="Nova\Core\Nodes\NodeTree.h" />
     <ClInclude Include="Nova\Core\Nodes\Node.h" />
     <ClInclude Include="Nova\Core\Types\Counters.h" />
@@ -175,13 +175,16 @@
     <ClCompile Include="Nova\Core\App\App.cpp" />
     <ClCompile Include="Nova\Core\App\MainLoop.cpp" />
     <ClCompile Include="Nova\Core\Events\Event.cpp" />
+    <ClCompile Include="Nova\Core\Events\TickListener.cpp" />
     <ClCompile Include="Nova\Core\Logging\ConsoleLogSink.cpp" />
     <ClCompile Include="Nova\Core\Logging\Logger.cpp" />
+    <ClCompile Include="Nova\Core\Logging\LogLevel.cpp" />
+    <ClCompile Include="Nova\Core\Logging\LogSink.cpp" />
     <ClCompile Include="Nova\Core\Modules\AppModule.cpp" />
     <ClCompile Include="Nova\Core\Modules\AppModuleException.cpp" />
-    <ClCompile Include="Nova\Core\Modules\Display\DisplayModule.cpp" />
-    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.cpp" />
-    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Windowing\WindowingModule.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.cpp" />
     <ClCompile Include="Nova\Core\Nodes\Node.cpp" />
     <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp" />
     <ClCompile Include="Nova\Core\Types\DateTime.cpp" />

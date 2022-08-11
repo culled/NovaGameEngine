@@ -81,13 +81,13 @@
     <ClInclude Include="Nova\Core\Types\RefCounted.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Modules\Display\DisplayModule.h">
+    <ClInclude Include="Nova\Core\Modules\Windowing\WindowingModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Modules\Display\Window.h">
+    <ClInclude Include="Nova\Core\Modules\Windowing\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.h">
+    <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -96,7 +96,7 @@
     <ClInclude Include="Nova\Core\Modules\AppModuleException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.h">
+    <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -128,16 +128,25 @@
     <ClCompile Include="Nova\Core\Modules\AppModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWWindow.cpp">
+    <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nova\Core\Modules\Display\DisplayModule.cpp">
+    <ClCompile Include="Nova\Core\Modules\Windowing\WindowingModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Nova\Core\Modules\AppModuleException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nova\Core\Modules\Display\GLFW\GLFWDisplayModule.cpp">
+    <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Events\TickListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Logging\LogSink.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nova\Core\Logging\LogLevel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

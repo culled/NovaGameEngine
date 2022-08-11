@@ -1,8 +1,7 @@
-// Represents C#-like TimeSpan and DateTime classes
-
 #pragma once
 
 #include "Nova/Core/Engine.h"
+
 #include "String.h"
 
 namespace Nova
@@ -14,13 +13,7 @@ namespace Nova
 	{
 	public:
 		/// <summary>
-		/// Gets the duration of time since epoch
-		/// </summary>
-		/// <returns>A TimeSpan that represents the duration of time since epoch</returns>
-		static TimeSpan Now();
-
-		/// <summary>
-		/// Creates a TimeSpan representing zero duration
+		/// Creates a TimeSpan representing a zero duration
 		/// </summary>
 		TimeSpan();
 
@@ -30,6 +23,30 @@ namespace Nova
 		/// <param name="microseconds">The number of microseconds that have passed</param>
 		TimeSpan(uint64_t microseconds);
 
+	public:
+		/// <summary>
+		/// Gets the duration of time since epoch
+		/// </summary>
+		/// <returns>A TimeSpan that represents the duration of time since epoch</returns>
+		static TimeSpan Now();
+
+	public:
+		// The amount of microseconds in 1 millisecond
+		static const uint64_t USecsPerMillisecond;
+
+		// The amount of microseconds in 1 second
+		static const uint64_t USecsPerSecond;
+
+		// The amount of microseconds in 1 minute
+		static const uint64_t USecsPerMinute;
+
+		// The amount of microseconds in 1 hour
+		static const uint64_t USecsPerHour;
+
+		// The amount of microseconds in 1 day
+		static const uint64_t USecsPerDay;
+
+	public:
 		/// <summary>
 		/// Gets the number of microseconds of this TimeSpan
 		/// </summary>
@@ -99,14 +116,8 @@ namespace Nova
 		TimeSpan operator+(const TimeSpan& rhs) const;
 		TimeSpan operator-(const TimeSpan& rhs) const;
 
-	public:
-		static const uint64_t USecsPerMillisecond;
-		static const uint64_t USecsPerSecond;
-		static const uint64_t USecsPerMinute;
-		static const uint64_t USecsPerHour;
-		static const uint64_t USecsPerDay;
-
 	private:
+		// The number of microseconds in this TimeSpan
 		uint64_t m_Microseconds;
 	};
 }

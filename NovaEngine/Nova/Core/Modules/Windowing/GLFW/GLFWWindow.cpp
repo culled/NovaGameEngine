@@ -2,39 +2,50 @@
 
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Modules/AppModuleException.h"
-#include "Nova/Core/Modules/Display/DisplayModule.h"
+#include "Nova/Core/Modules/Windowing/WindowingModule.h"
 
 #include "Vendor/glfw/include/GLFW/glfw3.h"
 
-namespace Nova::Display
+namespace Nova::Windowing
 {
-	void GLFWWindow::CloseCallback(GLFWwindow* internalWindow)
-	{
-		GLFWWindow* window = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(internalWindow));
-
-		Ref<WindowClosingEvent> closingEvent = MakeRef<WindowClosingEvent>();
-		window->OnClosing.Emit(closingEvent);
-
-		if (closingEvent->ShouldClose)
-		{
-			glfwSetWindowShouldClose(internalWindow, 1);
-			window->OnClosed.Emit(MakeRef<Event>());
-		}
-		else
-		{
-			glfwSetWindowShouldClose(internalWindow, 0);
-		}
-	}
-
-	GLFWWindow::GLFWWindow(uint32_t width, uint32_t height, const string& title) :
-		m_Width(width), m_Height(height), m_Title(title)
+	GLFWWindow::GLFWWindow(const WindowCreateParams& createParams) :
+		m_Width(createParams.InitialWidth), m_Height(createParams.InitialHeight), m_Title(createParams.Title)
 	{
 		CreateInternalWindow();
+		SetVSyncEnabled(createParams.VSync);
 	}
 
 	GLFWWindow::~GLFWWindow()
 	{
 		App::LogCore("Destroyed a GLFW window", LogLevel::Verbose);
+	}
+
+	// Window ----------
+	void GLFWWindow::Close()
+	{
+		glfwSetWindowShouldClose(m_InternalWindow.get(), GL_TRUE);
+	}
+
+	// Window ----------
+
+	void GLFWWindow::CloseCallback(GLFWwindow* internalWindow)
+	{
+		GLFWWindow* window = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(internalWindow));
+
+		WindowClosingEvent closingEvent;
+		window->OnClosing.Emit(closingEvent);
+
+		if (closingEvent.ShouldClose)
+		{
+			glfwSetWindowShouldClose(internalWindow, GL_TRUE);
+
+			window->OnClosed.EmitAnonymous();
+			WindowingModule::Get()->WindowClosed(window->GetSelfRef<GLFWWindow>());
+		}
+		else
+		{
+			glfwSetWindowShouldClose(internalWindow, GL_FALSE);
+		}
 	}
 
 	void GLFWWindow::CreateInternalWindow()
@@ -51,6 +62,7 @@ namespace Nova::Display
 		// Save a pointer to this window object in the GLFW window
 		glfwSetWindowUserPointer(internalWindow, this);
 
+		// Set the callback for when the window tries to close
 		glfwSetWindowCloseCallback(internalWindow, &GLFWWindow::CloseCallback);
 
 		m_InternalWindow.reset(internalWindow);

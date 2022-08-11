@@ -4,11 +4,15 @@
 
 namespace Nova
 {
-	ConsoleLogSink::ConsoleLogSink()
+	ConsoleLogSink::ConsoleLogSink(LogLevel minimumLevel) :
+		LogSink(minimumLevel)
 	{}
 
-	void ConsoleLogSink::Write(const string& message, LogLevel level)
+	// LogSink ----------
+	void ConsoleLogSink::WriteImpl(const string& message, LogLevel level)
 	{
 		std::cout << message << std::endl;
 	}
+
+	// LogSink ----------
 }

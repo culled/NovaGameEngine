@@ -5,6 +5,22 @@
 
 namespace Nova
 {
+	bool MainLoop::CompareTickListeners(const WeakRef<TickListener>& lhs, const WeakRef<TickListener>& rhs)
+	{
+		auto lhsPtr = lhs.lock();
+		auto rhsPtr = rhs.lock();
+
+		if (lhsPtr && rhsPtr)
+		{
+			// Whichever has the lower tick order should be first
+			return lhsPtr->GetTickOrder() < rhsPtr->GetTickOrder();
+		}
+		else
+		{
+			return lhsPtr != nullptr;
+		}
+	}
+
 	void MainLoop::Start()
 	{
 		m_IsRunning = true;
@@ -22,9 +38,11 @@ namespace Nova
 
 	void MainLoop::AddTickListener(Ref<TickListener> listener)
 	{
+		// Add the listener as a weak ref since we shouldn't own it
 		WeakRef<TickListener> weakRef = MakeWeakRef<TickListener>(listener);
 		m_TickListeners.push_back(weakRef);
-		m_ListenersModifiedSinceLastTick = true;
+
+		m_IsListenerSortDirty = true;
 	}
 
 	void MainLoop::RemoveTickListener(Ref<TickListener> listener)
@@ -50,29 +68,7 @@ namespace Nova
 	void MainLoop::SortTickListeners()
 	{
 		std::sort(m_TickListeners.begin(), m_TickListeners.end(), &MainLoop::CompareTickListeners);
-		m_ListenersModifiedSinceLastTick = false;
-	}
-
-	bool MainLoop::CompareTickListeners(const WeakRef<TickListener>& lhs, const WeakRef<TickListener>& rhs)
-	{
-		auto lhsPtr = lhs.lock();
-		auto rhsPtr = rhs.lock();
-
-		if (lhsPtr && rhsPtr)
-		{
-			return lhsPtr->GetTickOrder() < rhsPtr->GetTickOrder();
-		}
-		else
-		{
-			if (lhsPtr)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
+		m_IsListenerSortDirty = false;
 	}
 
 	void MainLoop::TickListeners()
@@ -85,7 +81,7 @@ namespace Nova
 		}
 
 		// Only sort listeners if there's more than one and the list has changed since we last sorted
-		if (m_TickListeners.size() > 1 && m_ListenersModifiedSinceLastTick)
+		if (m_TickListeners.size() > 1 && m_IsListenerSortDirty)
 		{
 			// Sort all listeners so they're ticked in the correct order
 			SortTickListeners();
@@ -107,7 +103,7 @@ namespace Nova
 			// TODO: remove dead listener pointers
 			if (listenerPtr)
 			{
-				listenerPtr->Tick(deltaTime);
+				listenerPtr->NotifyTick(deltaTime);
 			}
 		}
 	}

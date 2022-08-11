@@ -1,17 +1,26 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
+
 #include "Nova/Core/Types/String.h"
 #include "LogSink.h"
 
 namespace Nova
 {
+	/// <summary>
+	/// A log sink that prints messages to a console window
+	/// </summary>
 	NovaClass ConsoleLogSink : public LogSink
 	{
 	public:
-		ConsoleLogSink();
+		ConsoleLogSink(LogLevel minimumLevel = LogLevel::Verbose);
+
 		virtual ~ConsoleLogSink() = default;
 
-		virtual void Write(const string & message, LogLevel level) override;
+	// LogSink ----------
+	protected:
+		virtual void WriteImpl(const string& message, LogLevel level) override;
+
+	// LogSink ----------
 	};
 }

@@ -95,6 +95,7 @@ namespace Nova
 			return current + addValue;
 		}
 	private:
+		// The saved value
 		std::atomic<T> m_Value;
 	};
 
@@ -148,6 +149,7 @@ namespace Nova
 			return m_Counter.Get();
 		}
 	private:
+		// The counter used for this reference counter
 		AtomicCounter<uint32_t> m_Counter;
 	};
 }

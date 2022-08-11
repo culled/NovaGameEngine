@@ -14,6 +14,8 @@ public:
 	~ExampleApp();
 
 	//virtual Nova::App::AppExitCode Run() override;
+
+	void OnQuitting(Nova::AppQuittingEvent& e);
 };
 
 // Define this as the application class that will be created for the lifetime of the app

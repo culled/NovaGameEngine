@@ -1,8 +1,7 @@
-// Static class for handling application logging to various sinks
-
 #pragma once
 
 #include "Nova/Core/Engine.h"
+
 #include "Nova/Core/Types/List.h"
 #include "Nova/Core/Types/String.h"
 #include "LogLevel.h"
@@ -12,6 +11,9 @@
 
 namespace Nova
 {
+	/// <summary>
+	/// Class that accepts LogSinks and writes log messages to them
+	/// </summary>
 	NovaClass Logger
 	{
 	public:
@@ -21,6 +23,7 @@ namespace Nova
 		/// <param name="name">The name for this logger</param>
 		Logger(const string& name);
 
+	public:
 		/// <summary>
 		/// Creates and adds a sink for logging
 		/// </summary>
@@ -55,7 +58,10 @@ namespace Nova
 		string GetName() const { return m_Name; }
 
 	private:
-		string m_Name;
+		// The name of this logger
+		const string m_Name;
+
+		// The list of sinks this logger will write to
 		List<Ref<LogSink>> m_Sinks;
 	};
 }

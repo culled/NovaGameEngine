@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
+
 #include "Nova/Core/Events/TickListener.h"
 #include "Nova/Core/Types/DateTime.h"
 
@@ -12,6 +13,9 @@ namespace Nova
 	NovaClass MainLoop
 	{
 	public:
+		virtual ~MainLoop() = default;
+
+	private:
 		/// <summary>
 		/// Comparator for two TickListeners
 		/// </summary>
@@ -21,8 +25,6 @@ namespace Nova
 		static bool CompareTickListeners(const WeakRef<TickListener>& lhs, const WeakRef<TickListener>& rhs);
 
 	public:
-		virtual ~MainLoop() = default;
-
 		/// <summary>
 		/// Starts this loop
 		/// </summary>
@@ -56,12 +58,17 @@ namespace Nova
 		/// </summary>
 		void TickListeners();
 
-	protected:
+	private:
+		// Gets the running state of this loop
 		bool m_IsRunning = false;
-		bool m_ListenersModifiedSinceLastTick = false;
 
+		// If true, listeners should be re-sorted before they're ticked
+		bool m_IsListenerSortDirty = false;
+
+		// A list of all tick listeners
 		List<WeakRef<TickListener>> m_TickListeners;
 
+		// The time listeners were last ticked
 		TimeSpan m_LastTickTime;
 	};
 }

@@ -2,6 +2,7 @@
 
 namespace Nova
 {
-	AppModuleInitException::AppModuleInitException(const string& error) : Exception(error.c_str())
+	AppModuleInitException::AppModuleInitException(const string& error) : 
+		Exception(error.c_str())
 	{}
 }
