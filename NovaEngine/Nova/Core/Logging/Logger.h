@@ -55,7 +55,7 @@ namespace Nova
 		/// Gets the name of this logger
 		/// </summary>
 		/// <returns>The name of this logger</returns>
-		string GetName() const { return m_Name; }
+		const string& GetName() const { return m_Name; }
 
 	private:
 		// The name of this logger

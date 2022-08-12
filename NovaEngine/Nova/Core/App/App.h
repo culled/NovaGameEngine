@@ -130,7 +130,7 @@ namespace Nova
 		/// Gets the node tree for the application
 		/// </summary>
 		/// <returns>The app's node tree</returns>
-		Ref<NodeTree> GetNodeTree() { return m_NodeTree; }
+		Ref<NodeTree> GetNodeTree() const { return m_NodeTree; }
 
 	protected:
 		/// <summary>

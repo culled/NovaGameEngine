@@ -23,7 +23,7 @@ public:
 		}
 	}
 
-	virtual Nova::App::AppExitCode Run() override { return m_ExitCode; }
+	virtual Nova::App::AppExitCode Run() override { return AppExitCode::SUCCESS; }
 };
 
 MainApp(TestApp)

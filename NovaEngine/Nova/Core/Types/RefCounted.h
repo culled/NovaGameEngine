@@ -43,6 +43,27 @@ namespace Nova
 
 	public:
 		/// <summary>
+		/// Creates a RefCounted object
+		/// </summary>
+		/// <param name="...args">The arguments to pass to the class's constructor</param>
+		/// <returns>A reference to the created object</returns>
+		template <typename T, typename ... Args>
+		static Ref<T> Create(Args&& ... args)
+		{
+			static_assert(std::is_base_of<RefCounted, T>::value, "Only RefCounted objects can be created");
+
+			// Create the object
+			Ref<T> obj = std::make_shared<T>(std::forward<Args>(args)...);
+
+			// Cast to our RefCounted type so we can call the protected Init function
+			Ref<RefCounted> objRef = static_pointer_cast<RefCounted>(obj);
+			objRef->Init();
+
+			return obj;
+		}
+
+	protected:
+		/// <summary>
 		/// Called when the RefCounted object has been constructed. It's safe to use GetSelfRef/GetSelfWeakRef now
 		/// </summary>
 		virtual void Init() {}
@@ -52,7 +73,6 @@ namespace Nova
 		/// Gets a reference to this object. NOTE: cannot be used in the the object's constructor
 		/// </summary>
 		/// <returns>A reference to this object</returns>
-		//template<typename T, typename = std::enable_if_t<std::is_base_of_v<RefCounted, T>>>
 		template<typename T>
 		Ref<T> GetSelfRef()
 		{
@@ -63,7 +83,6 @@ namespace Nova
 		/// Gets a new weak reference to this object. NOTE: cannot be used in the the object's constructor
 		/// </summary>
 		/// <returns>A new weak reference to this object</returns>
-		//template<typename T, typename = std::enable_if_t<std::is_base_of_v<RefCounted, T>>>
 		template<typename T>
 		WeakRef<T> GetSelfWeakRef()
 		{
@@ -77,32 +96,10 @@ namespace Nova
 	/// <param name="...args">The arguments to pass to the class's constructor</param>
 	/// <returns>A reference to the created object</returns>
 	template<typename T, typename ... Args>
-	inline Ref<T> MakeRef(Args&& ...args)
+	Ref<T> MakeRef(Args&& ... args)
 	{
 		static_assert(std::is_base_of<RefCounted, T>::value, "Only RefCounted objects can be created");
 
-		Ref<T> obj = std::make_shared<T>(std::forward<Args>(args)...);
-		obj->Init();
-		return obj;
+		return RefCounted::Create<T>(std::forward<Args>(args)...);
 	}
-
-	/// <summary>
-	/// Creates a weak (not counted) reference from a Ref
-	/// </summary>
-	/// <param name="ref">The object reference</param>
-	/// <returns>A weak reference to the object</returns>
-	template<typename T>
-	inline WeakRef<T> MakeWeakRef(Ref<T> ref)
-	{
-		static_assert(std::is_base_of<RefCounted, T>::value, "Only RefCounted objects can be created");
-
-		return std::weak_ptr<T>(ref);
-	}
-
-	/// <summary>
-	/// Creates an empty weak reference
-	/// </summary>
-	/// <returns>An empty weak reference</returns>
-	template<typename T>
-	inline WeakRef<T> MakeWeakRef() { return std::weak_ptr<T>(); }
 }

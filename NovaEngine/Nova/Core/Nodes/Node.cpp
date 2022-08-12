@@ -76,7 +76,7 @@ namespace Nova
 			m_Children.erase(it);
 
 			// Notify the new child that its parent changed
-			(*it)->SetParent(MakeWeakRef<Node>());
+			(*it)->SetParent(WeakRef<Node>());
 		}
 	}
 
@@ -92,7 +92,7 @@ namespace Nova
 		else
 		{
 			// No parent, so no tree
-			SetTree(MakeWeakRef<NodeTree>());
+			SetTree(WeakRef<NodeTree>());
 		}
 	}
 }

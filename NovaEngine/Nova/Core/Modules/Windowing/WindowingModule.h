@@ -18,7 +18,7 @@ namespace Nova::Windowing
 		virtual ~WindowingModule();
 
 	// RefCounted ----------
-	public:
+	protected:
 		virtual void Init() override;
 
 	// RefCounted ----------

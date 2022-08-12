@@ -144,7 +144,7 @@ namespace Nova
 		/// Gets the number of refs this counter has
 		/// </summary>
 		/// <returns>The number of refs this counter has</returns>
-		uint32_t GetRefs()
+		uint32_t GetRefs() const
 		{
 			return m_Counter.Get();
 		}

@@ -11,161 +11,197 @@
 namespace Nova
 {
 	/// <summary>
-	/// Represents a weak binding to a member function pointer
+	/// Base event binding
 	/// </summary>
 	template<typename T, typename = std::enable_if_t<std::is_base_of_v<Event, T>>>
-	NovaClass WeakEventBinding
+	NovaClass EventBinding
 	{
 	public:
-		using EventCallback = std::function<void(T&)>;
-		using EventValidCallback = std::function<bool()>;
+		virtual ~EventBinding() = default;
 
-		template<typename U>
-		using EventFuncDelegate = void (U::*)(T&);
-
+	public:
 		/// <summary>
-		/// Creates a raw binding to a member function on the given object
+		/// Gets if this binding is still valid
 		/// </summary>
-		/// <param name="objPtr">The raw object to bind to</param>
-		/// <param name="method">The function to bind to</param>
-		template<typename U>
-		WeakEventBinding(U* objPtr, EventFuncDelegate<U> method)
-		{
-			m_Callback = [objPtr, method](T& e)
-			{
-				if (objPtr)
-				{
-					std::invoke(method, objPtr, e);
-				}
-			};
-
-			m_ValidCallback = [objPtr]()
-			{
-				return objPtr != nullptr;
-			};
-
-			// Store some info about the object and function for possible comparisons
-			m_ObjHash = GetObjHash(objPtr);
-			m_FuncHash = GetFuncHash(method);
-		}
-
-		/// <summary>
-		/// Creates a weak binding to a member function on the given object
-		/// </summary>
-		/// <param name="obj">The object to bind to</param>
-		/// <param name="method">The function to bind to</param>
-		template<typename U>
-		WeakEventBinding(Ref<U> obj, EventFuncDelegate<U> method)
-		{
-			// Create a weak reference to the object and pass that to a lambda function so we can call the proper function while the object exists
-			WeakRef<U> weakRef = MakeWeakRef<U>(obj);
-
-			m_Callback = [weakRef, method](T& e)
-			{ 
-				auto ref = weakRef.lock();
-
-				if (ref)
-				{
-					std::invoke(method, ref, e);
-				}
-			};
-
-			m_ValidCallback = [weakRef]()
-			{
-				return weakRef.lock() != nullptr;
-			};
-
-			// Store some info about the object and function for possible comparisons
-			m_ObjHash = GetObjHash(obj.get());
-			m_FuncHash = GetFuncHash(method);
-		}
+		/// <returns>True if this binding is valid</returns>
+		virtual bool IsValid() const = 0;
 
 		/// <summary>
 		/// Attempts to call the bound function
 		/// </summary>
 		/// <param name="e">The event</param>
-		void Call(T& e)
-		{
-			m_Callback(e);
-		}
+		virtual void Call(T& e) = 0;
 
-		bool IsValid() const
-		{
-			return m_ValidCallback();
-		}
+		virtual bool Equals(EventBinding<T>* other) const = 0;
+	};
 
-		/// <summary>
-		/// Checks if the given object and member function are the same ones that this binding is bound to
-		/// </summary>
-		/// <param name="obj">The object</param>
-		/// <param name="method">The function on the object</param>
-		/// <returns>True if this binding is bound to the function on the object</returns>
-		template<typename U>
-		bool Equals(U* objPtr, EventFuncDelegate<U> method) const
-		{
-			return GetObjHash(objPtr) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
-		}
+	/// <summary>
+	/// Event binding to a static function
+	/// </summary>
+	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
+	NovaClass StaticEventBinding : public EventBinding<EventType>
+	{
+	public:
+		using EventFuncDelegate = void (ClassType::*)(EventType&);
 
 		/// <summary>
-		/// Checks if the given object and member function are the same ones that this binding is bound to
+		/// Creates a binding to a static function
 		/// </summary>
-		/// <param name="obj">The object</param>
-		/// <param name="method">The function on the object</param>
-		/// <returns>True if this binding is bound to the function on the object</returns>
-		template<typename U>
-		bool Equals(Ref<U> obj, EventFuncDelegate<U> method) const
+		/// <param name="func">The static function to bind to</param>
+		StaticEventBinding(EventFuncDelegate func) :
+			m_FuncDelegate(func)
+		{}
+
+	// EventBinding ----------
+	public:
+		virtual bool IsValid() const override { return true; }
+
+		virtual void Call(EventType& e) override { m_InvokeDelegate(e); }
+
+		virtual bool Equals(EventBinding<EventType>* other) const override
 		{
-			return GetObjHash(obj.get()) == m_ObjHash && GetFuncHash(method) == m_FuncHash;
+			StaticEventBinding* otherStaticBinding = dynamic_cast<StaticEventBinding*>(other);
+
+			if (!otherStaticBinding)
+			{
+				return false;
+			}
+
+			return this->m_FuncDelegate == otherStaticBinding->m_FuncDelegate;
 		}
+
+	// EventBinding ----------
 
 	private:
-		/// <summary>
-		/// Calculates a hash for a given object
-		/// </summary>
-		template<typename U>
-		size_t GetObjHash(U* objPtr) const
-		{
-			std::hash<U*> h;
-			return h(objPtr);
-		}
+		EventFuncDelegate m_FuncDelegate;
+	};
+
+	/// <summary>
+	/// Represents a binding to a member function on a raw pointer
+	/// </summary>
+	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
+	NovaClass PtrEventBinding : public EventBinding<EventType>
+	{
+	public:
+		using EventFuncDelegate = void (ClassType::*)(EventType&);
 
 		/// <summary>
-		/// Calculates a hash for a given function
-		/// </summary>	
-		template<typename U>
-		size_t GetFuncHash(EventFuncDelegate<U> method) const
+		/// Creates a binding to a member function on the raw pointer to an object
+		/// </summary>
+		/// <param name="ptr">The object pointer to bind to</param>
+		/// <param name="method">The function to bind to</param>
+		PtrEventBinding(ClassType* ptr, EventFuncDelegate func) :
+			m_Ptr(ptr), m_Func(func)
+		{}
+
+	// EventBinding ----------
+	public:
+		virtual bool IsValid() const override { return m_Ptr != nullptr; }
+
+		virtual void Call(EventType& e) override
 		{
-			// TODO: Make this actually check if the method has the same address as the stored method
-			return 0;
+			if (IsValid())
+			{
+				(m_Ptr->*m_Func)(e);
+			}
 		}
+
+		virtual bool Equals(EventBinding<EventType>* other) const override
+		{
+			PtrEventBinding* otherPtrBinding = dynamic_cast<PtrEventBinding*>(other);
+
+			if (!otherPtrBinding)
+			{
+				return false;
+			}
+
+			return this->m_Ptr == otherPtrBinding->m_Ptr && this->m_Func == otherPtrBinding->m_Func;
+		}
+
+	// EventBinding ----------
 
 	private:
-		size_t m_ObjHash;
-		size_t m_FuncHash;
-		EventCallback m_Callback;
-		EventValidCallback m_ValidCallback;
+		ClassType* m_Ptr;
+		EventFuncDelegate m_Func;
+	};
+
+	/// <summary>
+	/// Represents a binding to a member function on a Ref
+	/// </summary>
+	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
+	NovaClass RefEventBinding : public EventBinding<EventType>
+	{
+	public:
+		using EventFuncDelegate = void (ClassType::*)(EventType&);
+
+		/// <summary>
+		/// Creates a binding to a member function on the given Ref
+		/// </summary>
+		/// <param name="ref">The Ref to bind to</param>
+		/// <param name="method">The function to bind to</param>
+		RefEventBinding(Ref<ClassType> ref, EventFuncDelegate func) :
+			m_WeakRef(WeakRef<ClassType>(ref)), m_Func(func)
+		{}
+
+		// EventBinding ----------
+		public:
+			virtual bool IsValid() const override { return m_WeakRef.lock() != nullptr; }
+
+			virtual void Call(EventType& e) override
+			{
+				if (IsValid())
+				{
+					auto ref = m_WeakRef.lock();
+					(ref.get()->*m_Func)(e);
+				}
+			}
+
+			virtual bool Equals(EventBinding<EventType>* other) const override
+			{
+				RefEventBinding* otherRefBinding = dynamic_cast<RefEventBinding*>(other);
+
+				if (!otherRefBinding)
+				{
+					return false;
+				}
+
+				Ref<ClassType> selfPtr = this->m_WeakRef.lock();
+				Ref<ClassType> otherPtr = otherRefBinding->m_WeakRef.lock();
+
+				return selfPtr != nullptr && otherPtr != nullptr && selfPtr.get() == otherPtr.get() && this->m_Func == otherRefBinding->m_Func;
+			}
+
+			// EventBinding ----------
+
+			private:
+				WeakRef<ClassType> m_WeakRef;
+				EventFuncDelegate m_Func;
 	};
 
 	/// <summary>
 	/// Represents a source for an Event type
 	/// </summary>
-	template<typename T, typename = std::enable_if_t<std::is_base_of_v<Event, T>>>
+	template<typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
 	NovaClass EventSource
 	{
 	public:
-		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		using EventFuncDelegate = void (U::*)(V&);
+		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+		using EventFuncDelegate = void (ClassType::*)(DerivedEventType&);
+
+		using BindingRef = std::shared_ptr<EventBinding<EventType>>;
 
 		/// <summary>
 		/// Connects the raw member function as a listener to this event source
 		/// </summary>
 		/// <param name="objectPtr">The raw object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
-		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Connect(U* objectPtr, EventFuncDelegate<U, V> method)
+		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+		void Connect(ClassType* objectPtr, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
+			BindingRef binding = std::make_shared<PtrEventBinding<ClassType, DerivedEventType>>(objectPtr, method);
+
 			// Create a binding with the object and member function
-			AddBinding(WeakEventBinding<V>(objectPtr, method));
+			AddBinding(binding);
 		}
 
 		/// <summary>
@@ -173,12 +209,14 @@ namespace Nova
 		/// </summary>
 		/// <param name="objectPtr">The raw object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
-		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Disconnect(U* objectPtr, EventFuncDelegate<U, V> method)
+		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+		void Disconnect(ClassType* objectPtr, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
-			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [objectPtr, method](const WeakEventBinding<T>& binding)
+			std::shared_ptr<EventBinding<EventType>> binding = std::make_shared<PtrEventBinding<ClassType, DerivedEventType>>(objectPtr, method);
+
+			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [binding](const BindingRef& otherBinding)
 				{
-					return binding.Equals(objectPtr, method);
+					return otherBinding->Equals(binding.get());
 				});
 
 			RemoveBinding(it);
@@ -189,11 +227,13 @@ namespace Nova
 		/// </summary>
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
-		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Connect(Ref<U> object, EventFuncDelegate<U, V> method)
+		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+		void Connect(Ref<ClassType> object, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
+			BindingRef binding = std::make_shared<RefEventBinding<ClassType, DerivedEventType>>(object, method);
+
 			// Create a binding with the object and member function
-			AddBinding(WeakEventBinding<V>(object, method));
+			AddBinding(binding);
 		}
 
 		/// <summary>
@@ -201,29 +241,61 @@ namespace Nova
 		/// </summary>
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
-		template<typename U, typename V, typename = std::enable_if_t<std::is_convertible_v<T&, V&>>>
-		void Disconnect(Ref<U> object, EventFuncDelegate<U, V> method)
+		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+		void Disconnect(Ref<ClassType> object, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
-			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [object, method](const WeakEventBinding<T>& binding)
+			std::shared_ptr<EventBinding<EventType>> binding = std::make_shared<RefEventBinding<ClassType, DerivedEventType>>(object, method);
+
+			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [binding](const BindingRef& otherBinding)
 				{
-					return binding.Equals(object, method);
+					return otherBinding->Equals(binding.get());
 				});
 			
 			RemoveBinding(it);
 		}
 
 		/// <summary>
+		/// Connects the static function as a listener to this event source
+		/// </summary>
+		/// <param name="method">The address of the static function</param>
+//		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+//		void Connect(EventFuncDelegate<ClassType, DerivedEventType> method)
+//		{
+//			BindingRef binding = std::make_shared<StaticEventBinding<ClassType, DerivedEventType>>(method);
+//
+//			// Create a binding with the object and member function
+//			AddBinding(binding);
+//		}
+//
+//		/// <summary>
+//		/// Disconnects the static function from listening to this event source
+//		/// </summary>
+//		/// <param name="method">The address of the static function</param>
+//		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
+//		void Disconnect(EventFuncDelegate<ClassType, DerivedEventType> method)
+//		{
+//			std::shared_ptr<EventBinding<EventType>> binding = std::make_shared<StaticEventBinding<ClassType, DerivedEventType>>(method);
+//
+//			auto it = std::find_if(m_Listeners.begin(), m_Listeners.end(), [binding](const BindingRef& otherBinding)
+//				{
+//					return binding.get() == otherBinding.get();
+//				});
+//
+//			RemoveBinding(it);
+//		}
+
+		/// <summary>
 		/// Emits the given event to all listeners, or until its propagation is stopped
 		/// </summary>
 		/// <param name="e">The event to emit to listeners</param>
-		void Emit(T& e)
+		void Emit(EventType& e)
 		{
 			// Make a copy of the list in-case it changes during the event emitting
-			List<WeakEventBinding<T>> listeners(m_Listeners);
+			List<BindingRef> listeners(m_Listeners);
 
-			for (WeakEventBinding<T> listener : listeners)
+			for (const auto& listener : listeners)
 			{
-				listener.Call(e);
+				listener->Call(e);
 
 				// Stop propagating if the event requests it
 				if (!e.Propagate)
@@ -240,8 +312,16 @@ namespace Nova
 		template<typename ... Args>
 		void EmitAnonymous(Args&& ... args)
 		{
-			T e(std::forward<Args>(args)...);
+			EventType e(std::forward<Args>(args)...);
 			Emit(e);
+		}
+
+		/// <summary>
+		/// Disconnects all listeners
+		/// </summary>
+		void DisconnectAllListeners()
+		{
+			m_Listeners.clear();
 		}
 
 	private:
@@ -249,7 +329,7 @@ namespace Nova
 		/// Adds a WeakEventBinding to the list of listeners
 		/// </summary>
 		/// <param name="listener">The binding to add</param>
-		void AddBinding(WeakEventBinding<T> listener)
+		void AddBinding(BindingRef listener)
 		{
 			// Place at the front so recent listeners receive the event before later ones
 			m_Listeners.emplace(m_Listeners.begin(), listener);
@@ -259,7 +339,7 @@ namespace Nova
 		/// Removes the listener from the list of listeners
 		/// </summary>
 		/// <param name="it">The iterator of the listener to remove</param>
-		void RemoveBinding(List<WeakEventBinding<T>>::iterator it)
+		void RemoveBinding(List<BindingRef>::iterator it)
 		{
 			// Don't remove if the iterator isn't in the list
 			if (it == m_Listeners.end())
@@ -277,9 +357,7 @@ namespace Nova
 
 			while (it != m_Listeners.end())
 			{
-				WeakEventBinding<T> binding = *it;
-
-				if (!binding.IsValid())
+				if (!(*it)->IsValid())
 				{
 					it = m_Listeners.erase(it);
 				}
@@ -292,6 +370,6 @@ namespace Nova
 
 	private:
 		// The list of bindings to listeners
-		List<WeakEventBinding<T>> m_Listeners;
+		List<BindingRef> m_Listeners;
 	};
 }

@@ -39,7 +39,7 @@ namespace Nova
 	void MainLoop::AddTickListener(Ref<TickListener> listener)
 	{
 		// Add the listener as a weak ref since we shouldn't own it
-		WeakRef<TickListener> weakRef = MakeWeakRef<TickListener>(listener);
+		WeakRef<TickListener> weakRef = WeakRef<TickListener>(listener);
 		m_TickListeners.push_back(weakRef);
 
 		m_IsListenerSortDirty = true;

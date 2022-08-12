@@ -24,7 +24,7 @@ namespace Nova
 		static void TickNode(Ref<Node> node, double deltaTime);
 
 	// RefCounted ----------
-	public:
+	protected:
 		virtual void Init() override;
 
 	// RefCounted ----------
