@@ -7,7 +7,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all classes that can be ticked
 	/// </summary>
-	NovaClass TickListener : public RefCounted
+	class NovaAPI TickListener : public RefCounted
 	{
 	public:
 		virtual ~TickListener() = default;
@@ -55,13 +55,13 @@ namespace Nova
 		double GetTickPeriod() const { return m_TickPeriod; }
 
 	private:
-		// If true, then this listener will respond to ticks
+		/// If true, then this listener will respond to ticks
 		bool m_ListenForTicks = false;
 
-		// The period that this listener will respond to ticks (in seconds). 0 = every tick
+		/// The period that this listener will respond to ticks (in seconds). 0 = every tick
 		double m_TickPeriod = 0.0;
 
-		// The time since the last tick response (if ticks are enabled)
+		/// The time since the last tick response (if ticks are enabled)
 		double m_TimeSinceLastTick = 0.0;
 	};
 }

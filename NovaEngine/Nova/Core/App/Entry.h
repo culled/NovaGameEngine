@@ -1,5 +1,3 @@
-// This represents the main entrypoint for the engine. It's recommended to include this in your app's class that derives from App
-
 #pragma once
 
 #include "Nova/Core/Engine.h"
@@ -11,7 +9,7 @@
 #endif
 #endif
 
-// The function that will create our client's App class. Should be defined using the MainApp macro
+/// The function that will create our client's App class. Should be defined using the MainApp macro
 extern Nova::App* CreateApp(const Nova::List<Nova::string>& args);
 
 namespace Nova

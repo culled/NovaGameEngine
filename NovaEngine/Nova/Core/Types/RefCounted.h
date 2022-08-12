@@ -36,7 +36,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all reference-counted objects
 	/// </summary>
-	NovaClass RefCounted : public std::enable_shared_from_this<RefCounted>
+	class NovaAPI RefCounted : public std::enable_shared_from_this<RefCounted>
 	{
 	public:
 		virtual ~RefCounted() = default;

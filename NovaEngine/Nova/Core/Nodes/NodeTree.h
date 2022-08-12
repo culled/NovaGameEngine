@@ -10,7 +10,7 @@ namespace Nova
 	/// <summary>
 	/// Class that manages a tree of nodes
 	/// </summary>
-	NovaClass NodeTree : public TickListener
+	class NovaAPI NodeTree : public TickListener
 	{
 	public:
 		virtual ~NodeTree() = default;
@@ -41,7 +41,7 @@ namespace Nova
 	// TickListener ----------
 
 	private:
-		// The root node of this tree
+		/// The root node of this tree
 		Ref<Node> m_RootNode;
 	};
 }

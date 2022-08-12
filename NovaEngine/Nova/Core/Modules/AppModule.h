@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all application modules
 	/// </summary>
-	NovaClass AppModule : public TickListener
+	class NovaAPI AppModule : public TickListener
 	{
 	public:
 		/// <summary>
@@ -38,7 +38,7 @@ namespace Nova
 		virtual int GetDefaultTickOrder() const = 0;
 
 	private:
-		// The tick order offset for this module
+		/// The tick order offset for this module
 		int m_TickOrderOffset;
 	};
 }

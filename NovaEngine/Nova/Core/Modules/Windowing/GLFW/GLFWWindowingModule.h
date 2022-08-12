@@ -5,7 +5,10 @@
 
 namespace Nova::Windowing
 {
-	NovaClass GLFWWindowingModule : public WindowingModule
+	/// <summary>
+	/// A windowing module that uses GLFW as its backend
+	/// </summary>
+	class NovaAPI GLFWWindowingModule : public WindowingModule
 	{
 	public:
 		GLFWWindowingModule(int tickOffset);
@@ -35,7 +38,7 @@ namespace Nova::Windowing
 		static void TerminateGLFW();
 
 	private:
-		// True if GLFW has been initialized and can be used
+		/// True if GLFW has been initialized and can be used
 		static bool s_GLFWInitialized;
 	};
 }

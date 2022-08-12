@@ -10,7 +10,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for an application loop
 	/// </summary>
-	NovaClass MainLoop
+	class NovaAPI MainLoop
 	{
 	public:
 		virtual ~MainLoop() = default;
@@ -59,16 +59,16 @@ namespace Nova
 		void TickListeners();
 
 	private:
-		// Gets the running state of this loop
+		/// Gets the running state of this loop
 		bool m_IsRunning = false;
 
-		// If true, listeners should be re-sorted before they're ticked
+		/// If true, listeners should be re-sorted before they're ticked
 		bool m_IsListenerSortDirty = false;
 
-		// A list of all tick listeners
+		/// A list of all tick listeners
 		List<WeakRef<TickListener>> m_TickListeners;
 
-		// The time listeners were last ticked
+		/// The time listeners were last ticked
 		TimeSpan m_LastTickTime;
 	};
 }

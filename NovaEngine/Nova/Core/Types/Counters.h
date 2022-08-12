@@ -8,7 +8,7 @@ namespace Nova
 	/// Wrapper class that stores a counter for a type that is guaranteed to be thread-safe
 	/// </summary>
 	template<typename T>
-	NovaClass AtomicCounter
+	class NovaAPI AtomicCounter
 	{
 	public:
 		/// <summary>
@@ -95,14 +95,14 @@ namespace Nova
 			return current + addValue;
 		}
 	private:
-		// The saved value
+		/// The saved value
 		std::atomic<T> m_Value;
 	};
 
 	/// <summary>
 	/// Serves as a thread-safe reference counter
 	/// </summary>
-	NovaClass AtomicRefCounter
+	class NovaAPI AtomicRefCounter
 	{
 	public:
 		/// <summary>
@@ -149,7 +149,7 @@ namespace Nova
 			return m_Counter.Get();
 		}
 	private:
-		// The counter used for this reference counter
+		/// The counter used for this reference counter
 		AtomicCounter<uint32_t> m_Counter;
 	};
 }

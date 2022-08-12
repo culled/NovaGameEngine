@@ -14,7 +14,7 @@
 
 namespace Nova
 {
-	NovaStruct AppQuittingEvent : public Event
+	struct NovaAPI AppQuittingEvent : public Event
 	{
 		/// <summary>
 		/// Gets/sets if the app should go through with the quit
@@ -22,7 +22,7 @@ namespace Nova
 		bool ShouldQuit = true;
 	};
 
-	NovaClass App
+	class NovaAPI App
 	{
 	public:
 		/// <summary>
@@ -164,32 +164,32 @@ namespace Nova
 		EventSource<Event> OnAppQuit;
 
 	protected:
-		// Gets the name of the application
+		/// Gets the name of the application
 		const string m_Name;
 
-		// Gets the time the app was started
-		const TimeSpan m_StartTime;
+		/// Gets the time the app was started
+		const TimeSpan m_StartTime; 
 
 	private:
-		// The code the app will exit with
+		/// The code the app will exit with
 		AppExitCode m_ExitCode;
 
-		// The logger for the core of Nova (non-user logs)
+		/// The logger for the core of Nova (non-user logs)
 		Exclusive<Logger> m_CoreLogger;
 
-		// The logger for the app
+		/// The logger for the app
 		Exclusive<Logger> m_AppLogger;
 
-		// The main loop of the app
+		/// The main loop of the app
 		Exclusive<MainLoop> m_MainLoop;
 
-		// A list of all active modules for the app
+		/// A list of all active modules for the app
 		List<Ref<AppModule>> m_AppModules;
 
-		// The main node tree for the app
+		/// The main node tree for the app
 		Ref<NodeTree> m_NodeTree;
 	};
 }
 
-// Macro to create an App factory that returns an instance of the client's app class
+/// Macro to create an App factory that returns an instance of the client's app class
 #define MainApp(AppClass) Nova::App* CreateApp(const Nova::List<Nova::string>& args) { return new AppClass(args); }

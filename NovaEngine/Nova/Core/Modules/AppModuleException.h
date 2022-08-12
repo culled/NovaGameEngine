@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Represents an exception initializing an AppModule
 	/// </summary>
-	NovaClass AppModuleInitException : public Exception
+	class NovaAPI AppModuleInitException : public Exception
 	{
 	public:
 		AppModuleInitException(const string& error);

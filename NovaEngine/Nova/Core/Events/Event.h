@@ -7,7 +7,7 @@ namespace Nova
 	/// <summary>
 	/// Base struct for all events
 	/// </summary>
-	NovaStruct Event
+	struct NovaAPI Event
 	{
 		/// <summary>
 		/// Constructor for the event
@@ -15,7 +15,7 @@ namespace Nova
 		Event();
 		virtual ~Event() = default;
 
-		// If set to false, this event will stop propagating to listeners
+		/// If set to false, this event will stop propagating to listeners
 		bool Propagate = true;
 	};
 }

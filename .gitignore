@@ -367,3 +367,6 @@ bin/
 
 # Intermediate folder
 int/
+
+# Documentation folder
+doc/generated/

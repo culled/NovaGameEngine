@@ -11,6 +11,6 @@
 #define NOVA_API __declspec(dllimport)
 #endif
 #else
-#define NOVA_API
+#define NovaAPI
 #endif
 #endif

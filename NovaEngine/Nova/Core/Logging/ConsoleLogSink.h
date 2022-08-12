@@ -10,7 +10,7 @@ namespace Nova
 	/// <summary>
 	/// A log sink that prints messages to a console window
 	/// </summary>
-	NovaClass ConsoleLogSink : public LogSink
+	class NovaAPI ConsoleLogSink : public LogSink
 	{
 	public:
 		ConsoleLogSink(LogLevel minimumLevel = LogLevel::Verbose);

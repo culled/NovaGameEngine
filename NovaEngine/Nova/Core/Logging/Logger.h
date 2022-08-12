@@ -14,7 +14,7 @@ namespace Nova
 	/// <summary>
 	/// Class that accepts LogSinks and writes log messages to them
 	/// </summary>
-	NovaClass Logger
+	class NovaAPI Logger
 	{
 	public:
 		/// <summary>
@@ -58,10 +58,10 @@ namespace Nova
 		const string& GetName() const { return m_Name; }
 
 	private:
-		// The name of this logger
+		/// The name of this logger
 		const string m_Name;
 
-		// The list of sinks this logger will write to
+		/// The list of sinks this logger will write to
 		List<Ref<LogSink>> m_Sinks;
 	};
 }

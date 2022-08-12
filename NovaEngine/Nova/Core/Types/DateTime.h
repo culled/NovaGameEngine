@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Represents a duration of time with microsecond precision
 	/// </summary>
-	NovaStruct TimeSpan
+	struct NovaAPI TimeSpan
 	{
 	public:
 		/// <summary>
@@ -117,7 +117,7 @@ namespace Nova
 		TimeSpan operator-(const TimeSpan& rhs) const;
 
 	private:
-		// The number of microseconds in this TimeSpan
+		/// The number of microseconds in this TimeSpan
 		uint64_t m_Microseconds;
 	};
 }

@@ -9,7 +9,7 @@ namespace Nova::Windowing
 	/// <summary>
 	/// Event for when a window is trying to close
 	/// </summary>
-	NovaStruct WindowClosingEvent : public Event
+	struct NovaAPI WindowClosingEvent : public Event
 	{
 		// If set to false, the window will not close
 		bool ShouldClose = true;
@@ -18,7 +18,7 @@ namespace Nova::Windowing
 	/// <summary>
 	/// Event for when a window is resized
 	/// </summary>
-	NovaStruct WindowResizedEvent : public Event
+	struct NovaAPI WindowResizedEvent : public Event
 	{
 		WindowResizedEvent(uint32_t newWidth, uint32_t newHeight) :
 			NewWidth(newWidth), NewHeight(newHeight) {}
@@ -30,7 +30,7 @@ namespace Nova::Windowing
 		uint32_t NewHeight;
 	};
 
-	NovaStruct WindowCreateParams
+	struct NovaAPI WindowCreateParams
 	{
 		WindowCreateParams(uint32_t width, uint32_t height, const string& title) :
 			InitialWidth(width), InitialHeight(height), Title(title) {}
@@ -44,7 +44,7 @@ namespace Nova::Windowing
 	/// <summary>
 	/// Represents a window on a user's desktop
 	/// </summary>
-	NovaClass Window : public RefCounted
+	class NovaAPI Window : public RefCounted
 	{
 	public:
 		virtual ~Window() = default;
@@ -86,13 +86,13 @@ namespace Nova::Windowing
 		virtual void Close() = 0;
 
 	public:
-		// Invoked when this window is trying to close
+		/// Invoked when this window is trying to close
 		EventSource<WindowClosingEvent> OnClosing;
 
-		// Invoked when this window is closed
+		/// Invoked when this window is closed
 		EventSource<Event> OnClosed;
 
-		// Invoked when this window is resized
+		/// Invoked when this window is resized
 		EventSource<WindowResizedEvent> OnResized;
 	};
 }

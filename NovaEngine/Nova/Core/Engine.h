@@ -14,9 +14,6 @@
 #error "Windows x64 is the only supported platform so far"
 #endif
 
-#define NovaClass class NOVA_API
-#define NovaStruct struct NOVA_API
-
 #include "Types/String.h"
 #include "Types/List.h"
 #include "Types/RefCounted.h"

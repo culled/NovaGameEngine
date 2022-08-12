@@ -11,7 +11,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all nodes that live in a NodeTree
 	/// </summary>
-	NovaClass Node : public TickListener
+	class NovaAPI Node : public TickListener
 	{
 	public:
 		/// <summary>
@@ -78,22 +78,22 @@ namespace Nova
 		void SetParent(WeakRef<Node> node);
 
 	private:
-		// The name of this node
+		/// The name of this node
 		string m_Name;
 
-		// The order of ticking for this node
+		/// The order of ticking for this node
 		int m_TickOrder = 0;
 
-		// This node's active state
+		/// This node's active state
 		bool m_IsActive = true;
 
-		// The parent of this node
+		/// The parent of this node
 		WeakRef<Node> m_Parent;
 
-		// The tree this node located in
+		/// The tree this node located in
 		WeakRef<NodeTree> m_Tree;
 
-		// A list of this node's children
+		/// A list of this node's children
 		List<Ref<Node>> m_Children;
 
 		friend NodeTree;

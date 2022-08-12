@@ -9,7 +9,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all sinks of log messages
 	/// </summary>
-	NovaClass LogSink : public RefCounted
+	class NovaAPI LogSink : public RefCounted
 	{
 	public:
 		/// <summary>
@@ -44,7 +44,7 @@ namespace Nova
 		virtual void WriteImpl(const string& message, LogLevel level) = 0;
 
 	private:
-		// The minimum level of messages that this sink will write
+		/// The minimum level of messages that this sink will write
 		LogLevel m_MinimumLevel = LogLevel::Verbose;
 	};
 }

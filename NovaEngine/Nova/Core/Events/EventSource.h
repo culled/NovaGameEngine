@@ -14,7 +14,7 @@ namespace Nova
 	/// Base event binding
 	/// </summary>
 	template<typename T, typename = std::enable_if_t<std::is_base_of_v<Event, T>>>
-	NovaClass EventBinding
+	class NovaAPI EventBinding
 	{
 	public:
 		virtual ~EventBinding() = default;
@@ -39,7 +39,7 @@ namespace Nova
 	/// Event binding to a static function
 	/// </summary>
 	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
-	NovaClass StaticEventBinding : public EventBinding<EventType>
+	class NovaAPI StaticEventBinding : public EventBinding<EventType>
 	{
 	public:
 		using EventFuncDelegate = void (ClassType::*)(EventType&);
@@ -80,7 +80,7 @@ namespace Nova
 	/// Represents a binding to a member function on a raw pointer
 	/// </summary>
 	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
-	NovaClass PtrEventBinding : public EventBinding<EventType>
+	class NovaAPI PtrEventBinding : public EventBinding<EventType>
 	{
 	public:
 		using EventFuncDelegate = void (ClassType::*)(EventType&);
@@ -129,7 +129,7 @@ namespace Nova
 	/// Represents a binding to a member function on a Ref
 	/// </summary>
 	template<typename ClassType, typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
-	NovaClass RefEventBinding : public EventBinding<EventType>
+	class NovaAPI RefEventBinding : public EventBinding<EventType>
 	{
 	public:
 		using EventFuncDelegate = void (ClassType::*)(EventType&);
@@ -182,7 +182,7 @@ namespace Nova
 	/// Represents a source for an Event type
 	/// </summary>
 	template<typename EventType, typename = std::enable_if_t<std::is_base_of_v<Event, EventType>>>
-	NovaClass EventSource
+	class NovaAPI EventSource
 	{
 	public:
 		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
@@ -375,7 +375,7 @@ namespace Nova
 		}
 
 	private:
-		// The list of bindings to listeners
+		/// The list of bindings to listeners
 		List<BindingRef> m_Listeners;
 	};
 }

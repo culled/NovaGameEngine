@@ -10,7 +10,7 @@ namespace Nova::Windowing
 	/// <summary>
 	/// AppModule that handles graphical windows on a user's desktop
 	/// </summary>
-	NovaClass WindowingModule : public AppModule
+	class NovaAPI WindowingModule : public AppModule
 	{
 	public:
 		WindowingModule(int tickOffset);
@@ -90,10 +90,10 @@ namespace Nova::Windowing
 		void MainWindowClosingCallback(WindowClosingEvent& e);
 
 	protected:
-		// The main window of the application
+		/// The main window of the application
 		Ref<Window> m_MainWindow;
 
-		// A list of all windows managed by this WindowingModule
+		/// A list of all windows managed by this WindowingModule
 		List<Ref<Window>> m_Windows;
 	};
 }

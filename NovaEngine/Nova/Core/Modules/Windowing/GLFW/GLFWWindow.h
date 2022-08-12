@@ -9,7 +9,7 @@ namespace Nova::Windowing
 {
 	// Wrapper to add a destructor to the GLFWwindow type
 	// https://stackoverflow.com/questions/35793672/use-unique-ptr-with-glfwwindow
-	NovaStruct DestroyGLFWwindow {
+	struct NovaAPI DestroyGLFWwindow {
 		void operator()(GLFWwindow* ptr)
 		{
 			glfwDestroyWindow(ptr);
@@ -19,7 +19,7 @@ namespace Nova::Windowing
 	/// <summary>
 	/// A GLFW implementation of a window
 	/// </summary>
-	NovaClass GLFWWindow : public Window
+	class NovaAPI GLFWWindow : public Window
 	{
 	public:
 		/// <summary>
@@ -56,19 +56,19 @@ namespace Nova::Windowing
 		void CreateInternalWindow();
 
 	private:
-		// The width of this window
+		/// The width of this window
 		uint32_t m_Width;
 
-		// The height of this window
+		/// The height of this window
 		uint32_t m_Height;
 
-		// The title of this window
+		/// The title of this window
 		string m_Title;
 
-		// If vsync is enabled for this window
+		/// If vsync is enabled for this window
 		bool m_VSync;
 
-		// Pointer the the GLFWwindow object
+		/// Pointer the the GLFWwindow object
 		std::unique_ptr<GLFWwindow, DestroyGLFWwindow> m_InternalWindow;
 	};
 }
