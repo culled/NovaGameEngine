@@ -302,7 +302,7 @@ namespace Nova
 					break;
 			}
 
-			RemoveInvalidBindings();
+			RemoveInvalidListeners();
 		}
 
 		/// <summary>
@@ -323,6 +323,32 @@ namespace Nova
 		{
 			m_Listeners.clear();
 		}
+
+		/// <summary>
+		/// Removes invalid listeners from the list of listeners
+		/// </summary>
+		void RemoveInvalidListeners()
+		{
+			auto it = m_Listeners.begin();
+
+			while (it != m_Listeners.end())
+			{
+				if (!(*it)->IsValid())
+				{
+					it = m_Listeners.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Gets the number of listeners. This will include invalid listeners until an event is emitted or RemoveInvalidListeners is called 
+		/// </summary>
+		/// <returns>The number of listeners</returns>
+		size_t GetListenerCount() const { return m_Listeners.size(); }
 
 	private:
 		/// <summary>
@@ -346,26 +372,6 @@ namespace Nova
 				return;
 
 			m_Listeners.erase(it);
-		}
-
-		/// <summary>
-		/// Removes invalid bindings from the list of listeners
-		/// </summary>
-		void RemoveInvalidBindings()
-		{
-			auto it = m_Listeners.begin();
-
-			while (it != m_Listeners.end())
-			{
-				if (!(*it)->IsValid())
-				{
-					it = m_Listeners.erase(it);
-				}
-				else
-				{
-					it++;
-				}
-			}
 		}
 
 	private:

@@ -16,6 +16,11 @@ public:
 			e.Propagate = false;
 	}
 
+	void AnotherCallback(Nova::Event& e)
+	{
+		EventsReceived += 2;
+	}
+
 	static void StaticCallback(Nova::Event& e)
 	{
 		StaticEventsReceived++;

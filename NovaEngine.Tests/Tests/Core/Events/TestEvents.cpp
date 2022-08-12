@@ -71,6 +71,28 @@ TEST_CASE("Nova/Core/Events/Disconnect Event", "Test if an event listener discon
 	REQUIRE(objB->EventsReceived == 1);
 }
 
+TEST_CASE("Nova/Core/Events/Multiple Listeners On One Object", "Test if multiple listeners on one object work")
+{
+	Nova::EventSource<Nova::Event> eventSource;
+
+	Nova::Ref<EventObj> objA = std::make_shared<EventObj>();
+
+	eventSource.Connect(objA, &EventObj::Callback);
+	eventSource.Connect(objA, &EventObj::AnotherCallback);
+
+	REQUIRE(objA->EventsReceived == 0);
+
+	eventSource.EmitAnonymous();
+
+	REQUIRE(objA->EventsReceived == 3);
+
+	eventSource.Disconnect(objA, &EventObj::Callback);
+
+	eventSource.EmitAnonymous();
+
+	REQUIRE(objA->EventsReceived == 5);
+}
+
 TEST_CASE("Nova/Core/Events/Event Stop Propagation", "Test if an event stops propagating to other listeners")
 {
 	Nova::EventSource<Nova::Event> eventSource;
@@ -88,4 +110,21 @@ TEST_CASE("Nova/Core/Events/Event Stop Propagation", "Test if an event stops pro
 
 	REQUIRE(objA->EventsReceived == 0);
 	REQUIRE(objB->EventsReceived == 1);
+}
+
+TEST_CASE("Nova/Core/Events/Dead Event Listener", "Test if an event source prevents calling an event on a dead listener")
+{
+	Nova::EventSource<Nova::Event> eventSource;
+
+	{
+		Nova::Ref<EventObj> obj = std::make_shared<EventObj>();
+
+		eventSource.Connect(obj, &EventObj::Callback);
+
+		REQUIRE(eventSource.GetListenerCount() == 1);
+	}
+
+	eventSource.EmitAnonymous();
+
+	REQUIRE(eventSource.GetListenerCount() == 0);
 }
