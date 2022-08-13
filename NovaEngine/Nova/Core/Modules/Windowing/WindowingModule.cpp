@@ -10,7 +10,7 @@ namespace Nova::Windowing
 		if (s_Instance.lock())
 		{
 			// Can't have more than one display module!
-			throw Exception();
+			throw AppModuleInitException("A WindowModule is already in use");
 		}
 	}
 
@@ -18,14 +18,14 @@ namespace Nova::Windowing
 	{
 		ReleaseAllWindows();
 
-		App::LogCore("DisplayModule destroyed", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "DisplayModule destroyed");
 	}
 
 	// RefCounted ----------
 	void WindowingModule::Init()
 	{
 		s_Instance = GetSelfWeakRef<WindowingModule>();
-		App::LogCore("DisplayModule created successfully", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "DisplayModule created successfully");
 	}
 
 	// RefCounted ----------

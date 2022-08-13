@@ -149,6 +149,9 @@
     <ClCompile Include="Nova\Core\Logging\LogLevel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Nova\Core\Types\Exception.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NovaEngine.rc">

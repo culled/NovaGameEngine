@@ -56,12 +56,12 @@ namespace Nova::Windowing
 
 		if (!glfwInit())
 		{
-			App::LogCore("Unable to initialize GLFW", LogLevel::Error);
+			App::LogCore(LogLevel::Error, "Unable to initialize GLFW");
 			throw AppModuleInitException("Unable to initialize GLFW");
 		}
 
 		s_GLFWInitialized = true;
-		App::LogCore("GLFW initialized", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "GLFW initialized");
 	}
 
 	void GLFWWindowingModule::TerminateGLFW()
@@ -72,7 +72,7 @@ namespace Nova::Windowing
 		glfwTerminate();
 
 		s_GLFWInitialized = false;
-		App::LogCore("GLFW terminated", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "GLFW terminated");
 	}
 
 	bool GLFWWindowingModule::s_GLFWInitialized = false;

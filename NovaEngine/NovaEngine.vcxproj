@@ -188,6 +188,7 @@
     <ClCompile Include="Nova\Core\Nodes\Node.cpp" />
     <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp" />
     <ClCompile Include="Nova\Core\Types\DateTime.cpp" />
+    <ClCompile Include="Nova\Core\Types\Exception.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NovaEngine.rc" />

@@ -17,7 +17,7 @@ namespace Nova::Windowing
 
 	GLFWWindow::~GLFWWindow()
 	{
-		App::LogCore("Destroyed a GLFW window", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "Destroyed a GLFW window");
 	}
 
 	// Window ----------
@@ -55,7 +55,7 @@ namespace Nova::Windowing
 
 		if (!internalWindow)
 		{
-			App::LogCore("Failed to create GLFW window", LogLevel::Verbose);
+			App::LogCore(LogLevel::Verbose, "Failed to create GLFW window");
 			throw Exception("Failed to create GLFW window");
 		}
 
@@ -67,7 +67,7 @@ namespace Nova::Windowing
 
 		m_InternalWindow.reset(internalWindow);
 
-		App::LogCore("Created a GLFW window", LogLevel::Verbose);
+		App::LogCore(LogLevel::Verbose, "Created a GLFW window");
 	}
 
 	void GLFWWindow::SetVSyncEnabled(bool enabled)

@@ -52,6 +52,17 @@ namespace Nova
 		void Write(const string& message, LogLevel level = LogLevel::Info);
 
 		/// <summary>
+		/// Writes to this log
+		/// </summary>
+		/// <param name="message">The message to write</param>
+		/// <param name="level">The log level of the message</param>
+		template<typename ... Args>
+		void WriteFormatted(LogLevel level, const string& formattedMessage, Args&&... values)
+		{
+			Write(FormatString(formattedMessage, std::forward<Args>(values)...), level);
+		}
+
+		/// <summary>
 		/// Gets the name of this logger
 		/// </summary>
 		/// <returns>The name of this logger</returns>

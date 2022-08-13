@@ -26,6 +26,11 @@ public:
 		StaticEventsReceived++;
 	}
 
+	static void AnotherStaticCallback(Nova::Event& e)
+	{
+		StaticEventsReceived += 2;
+	}
+
 	int EventsReceived = 0;
 	static int StaticEventsReceived;
 

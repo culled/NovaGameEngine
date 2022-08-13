@@ -13,6 +13,15 @@ namespace Nova
 	{
 	public:
 		/// <summary>
+		/// A list of default tick order offsets for built-in modules
+		/// </summary>
+		enum class BuiltInModuleOffset
+		{
+			WindowingModule = -1000,
+			RenderingModule = 1000,
+		};
+
+		/// <summary>
 		/// Constructor for this app module
 		/// </summary>
 		/// <param name="additionalTickOrderOffset">An additional offset to add to the default offset for the module</param>

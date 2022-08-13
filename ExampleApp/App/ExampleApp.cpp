@@ -7,7 +7,7 @@ ExampleApp::ExampleApp(const Nova::List<Nova::string>& args) : App("Example App"
 {
 	CreateDefaultLogSinks(Nova::LogLevel::Verbose, Nova::LogLevel::Verbose);
 
-	Log("ExampleApp created");
+	Log(Nova::LogLevel::Verbose, "ExampleApp created");
 
 	OnAppQuitting.Connect(this, &ExampleApp::OnQuitting);
 
@@ -19,14 +19,14 @@ ExampleApp::ExampleApp(const Nova::List<Nova::string>& args) : App("Example App"
 
 ExampleApp::~ExampleApp()
 {
-	Log("ExampleApp destroyed");
+	Log(Nova::LogLevel::Verbose, "ExampleApp destroyed");
 }
 
 void ExampleApp::OnQuitting(Nova::AppQuittingEvent& e)
 {
 	//e.ShouldQuit = false;
 	//
-	Log("I'm quitting!");
+	Log(Nova::LogLevel::Info, "I'm quitting!");
 }
 
 //Nova::App::AppExitCode ExampleApp::Run()

@@ -21,21 +21,20 @@ namespace Nova
 	/// <returns>Application exit code</returns>
 	App::AppExitCode Entry(const Nova::List<Nova::string>& args)
 	{
-		auto app = CreateApp(args);
+		std::unique_ptr<App> app;
 		App::AppExitCode exitCode;
 
 		try
 		{
-			exitCode = app->Run();
+			app.reset(CreateApp(args));
 		}
-		catch(const Exception& ex)
+		catch (...)
 		{
-			// TODO: error handle for app
-			app->LogCore(ex.what(), LogLevel::Error);
-			exitCode = App::AppExitCode::UNHANDLED_EXCEPTION;
+			// TODO: handle app unable to start
+			return App::AppExitCode::UNHANDLED_EXCEPTION;
 		}
 
-		delete app;
+		exitCode = app->Run();
 
 		return exitCode;
 	}

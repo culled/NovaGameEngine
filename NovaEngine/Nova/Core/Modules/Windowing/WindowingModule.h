@@ -25,7 +25,10 @@ namespace Nova::Windowing
 
 	// AppModule ----------
 	protected:
-		virtual int GetDefaultTickOrder() const override { return -1000; }
+		virtual int GetDefaultTickOrder() const override
+		{ 
+			return static_cast<int>(AppModule::BuiltInModuleOffset::WindowingModule);
+		}
 
 	// AppModule ----------
 

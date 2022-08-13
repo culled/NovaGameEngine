@@ -8,4 +8,6 @@ namespace Nova
 	/// Base exception type
 	/// </summary>
 	using Exception = std::exception;
+
+	Exception GetException();
 }

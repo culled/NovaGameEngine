@@ -37,26 +37,29 @@ namespace Nova
 		return sp_AppInstance->m_StartTime;
 	}
 
-	void App::Log(const string& message, LogLevel level)
-	{
-		sp_AppInstance->m_AppLogger->Write(message, level);
-	}
-
-	void App::LogCore(const string& message, LogLevel level)
-	{
-		sp_AppInstance->m_CoreLogger->Write(message, level);
-	}
-
 	App* App::sp_AppInstance = nullptr;
 
 	App::AppExitCode App::Run()
 	{
-		LogCore("App::Run(): Starting MainLoop", LogLevel::Verbose);
-		m_MainLoop->Start();
+		LogCore(LogLevel::Verbose, "App::Run(): Starting MainLoop");
 
-		OnAppQuit.EmitAnonymous();
+		try
+		{
+			m_MainLoop->Start();
 
-		return m_ExitCode;
+			OnAppQuit.EmitAnonymous();
+
+			return m_ExitCode;
+		}
+		catch (...)
+		{
+			Exception ex = GetException();
+
+			// TODO: error handle for app
+			LogCore(LogLevel::Error, "An unhandled exception occured: {0}", ex.what());
+
+			return AppExitCode::UNHANDLED_EXCEPTION;
+		}
 	}
 
 	void App::Quit(AppExitCode exitCode)
@@ -76,8 +79,8 @@ namespace Nova
 		m_CoreLogger->CreateSink<ConsoleLogSink>(coreLevel);
 		m_AppLogger->CreateSink<ConsoleLogSink>(appLevel);
 
-		LogCore("App::CreateDefaultLogSinks(): Core logger created", LogLevel::Verbose);
-		Log("App::CreateDefaultLogSinks(): App logger created", LogLevel::Verbose);
+		LogCore(LogLevel::Verbose, "App::CreateDefaultLogSinks(): Core logger created");
+		Log(LogLevel::Verbose, "App::CreateDefaultLogSinks(): App logger created");
 	}
 
 	Exclusive<MainLoop> App::CreateMainLoop()

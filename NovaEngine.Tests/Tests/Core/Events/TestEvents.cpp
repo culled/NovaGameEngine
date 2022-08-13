@@ -45,6 +45,26 @@ TEST_CASE("Nova/Core/Events/Ptr Event Listener", "Test connecting and disconnect
 	REQUIRE(obj->EventsReceived == 1);
 }
 
+//TEST_CASE("Nova/Core/Events/Static Event Listener", "Test connecting and disconnecting a static function to an event source")
+//{
+//	Nova::EventSource<Nova::Event> eventSource;
+//
+//	eventSource.Connect<Nova::Event>(&EventObj::StaticCallback);
+//	eventSource.Connect<Nova::Event>(&EventObj::AnotherStaticCallback);
+//
+//	REQUIRE(EventObj::StaticEventsReceived == 0);
+//
+//	eventSource.EmitAnonymous();
+//
+//	REQUIRE(EventObj::StaticEventsReceived == 3);
+//
+//	eventSource.Disconnect<Nova::Event>(&EventObj::StaticCallback);
+//
+//	eventSource.EmitAnonymous();
+//
+//	REQUIRE(EventObj::StaticEventsReceived == 5);
+//}
+
 TEST_CASE("Nova/Core/Events/Disconnect Event", "Test if an event listener disconnects properly")
 {
 	Nova::EventSource<Nova::Event> eventSource;

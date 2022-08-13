@@ -5,12 +5,15 @@
 #include "Nova/Core/Engine.h"
 
 #include "Nova/Core/Modules/AppModule.h"
+#include "Nova/Core/Modules/AppModuleException.h"
 #include "Nova/Core/Events/Event.h"
 #include "Nova/Core/Events/EventSource.h"
 #include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
 #include "Nova/Core/Nodes/NodeTree.h"
 #include "MainLoop.h"
+
+#include <type_traits>
 
 namespace Nova
 {
@@ -65,16 +68,27 @@ namespace Nova
 		/// <summary>
 		/// Logs to the app's logger
 		/// </summary>
-		/// <param name="message">The message to log</param>
 		/// <param name="level">The log level of the message</param>
-		static void Log(const string& message, LogLevel level = LogLevel::Info);
+		/// <param name="formatMessage">The message to log</param>
+		/// <param name="values">Values to be integrated into the formatted message</param>
+		//static void Log(const string& message, LogLevel level = LogLevel::Info);
+		template <typename ... Args>
+		static void Log(LogLevel level, const string& formatMessage, Args&& ... values)
+		{
+			Get()->m_AppLogger->WriteFormatted(level, formatMessage, std::forward<Args>(values)...);
+		}
 
 		/// <summary>
 		/// Logs to the core engine logger
 		/// </summary>
-		/// <param name="message">The message to log</param>
 		/// <param name="level">The log level of the message</param>
-		static void LogCore(const string& message, LogLevel level = LogLevel::Info);
+		/// <param name="formatMessage">The message to log</param>
+		/// <param name="values">Values to be integrated into the formatted message</param>
+		template <typename ... Args>
+		static void LogCore(LogLevel level, const string& formatMessage, Args&& ... values)
+		{
+			Get()->m_CoreLogger->WriteFormatted(level, formatMessage, std::forward<Args>(values)...);
+		}
 
 		/// <summary>
 		/// Gets the instance of the app
@@ -110,8 +124,19 @@ namespace Nova
 			// Only accept classes that derive from AppModule
 			static_assert(std::is_base_of<AppModule, T>::value, "The class must inherit from AppModule");
 
-			// Create the app module and pass the given arguments
-			Ref<T> appModule = MakeRef<T>(executionOffset, std::forward<Args>(args)...);
+			Ref<T> appModule = nullptr;
+
+			try
+			{
+				// Create the app module and pass the given arguments
+				appModule = MakeRef<T>(executionOffset, std::forward<Args>(args)...);
+			}
+			catch (const AppModuleInitException& ex)
+			{
+				string message = FormatString("Unable to load AppModule \"{0}\": {1}", typeid(T).name(), ex.what());
+				LogCore(LogLevel::Error, message);
+				throw std::runtime_error(message);
+			}
 
 			// Add the created module to our list of modules and register it to the main loop
 			m_AppModules.push_back(appModule);
