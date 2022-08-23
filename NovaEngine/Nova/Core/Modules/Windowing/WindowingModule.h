@@ -37,7 +37,7 @@ namespace Nova::Windowing
 		/// Gets the active WindowingModule singleton
 		/// </summary>
 		/// <returns>A reference to the active WindowingModule singleton</returns>
-		static Ref<WindowingModule> Get();
+		static Ref<WindowingModule> Get() { return s_Instance.lock(); }
 
 	protected:
 		// The current WindowingModule singleton

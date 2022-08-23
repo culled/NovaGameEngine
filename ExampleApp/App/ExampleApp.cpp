@@ -1,5 +1,7 @@
 #include "ExampleApp.h"
 #include <Nova/Core/Logging/ConsoleLogSink.h>
+
+#include <Nova/Core/Modules/Rendering/RenderModule.h>
 #include <Nova/Core/Modules/Windowing/GLFW/GLFWWindowingModule.h>
 
 
@@ -10,6 +12,8 @@ ExampleApp::ExampleApp(const Nova::List<Nova::string>& args) : App("Example App"
 	Log(Nova::LogLevel::Verbose, "ExampleApp created");
 
 	OnAppQuitting.Connect(this, &ExampleApp::OnQuitting);
+
+	CreateAndAddModule<Nova::Rendering::RenderModule>(0, Nova::Rendering::RenderingBackendAPI::OpenGL);
 
 	auto display = CreateAndAddModule<Nova::Windowing::GLFWWindowingModule>();
 

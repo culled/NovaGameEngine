@@ -3,6 +3,7 @@
 #include "Nova/Core/Engine.h"
 
 #include "Nova/Core/Events/EventSource.h"
+#include "Nova/Core/Modules/Rendering/GraphicsContext.h"
 
 namespace Nova::Windowing
 {
@@ -84,6 +85,14 @@ namespace Nova::Windowing
 		/// Tells this window to close
 		/// </summary>
 		virtual void Close() = 0;
+
+		/// <summary>
+		/// Gets this window's graphics context
+		/// </summary>
+		/// <returns>This window's graphics context</returns>
+		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() = 0;
+
+		virtual void* GetNativeWindow() = 0;
 
 	public:
 		/// Invoked when this window is trying to close

@@ -74,11 +74,13 @@
     <PublicIncludeDirectories>$(SolutionDir)/NovaEngine;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)\NovaEngine\Vendor\glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <PublicIncludeDirectories>$(SolutionDir)/NovaEngine;$(PublicIncludeDirectories)</PublicIncludeDirectories>
     <OutDir>$(SolutionDir)\bin\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\int\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
+    <IncludePath>$(SolutionDir)\NovaEngine\Vendor\glad\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,6 +157,11 @@
     <ClInclude Include="Nova\Core\Logging\LogSink.h" />
     <ClInclude Include="Nova\Core\Modules\AppModule.h" />
     <ClInclude Include="Nova\Core\Modules\AppModuleException.h" />
+    <ClInclude Include="Nova\Core\Modules\Rendering\Backends\OpenGL\OpenGLGraphicsContext.h" />
+    <ClInclude Include="Nova\Core\Modules\Rendering\Backends\OpenGL\OpenGLRenderingBackend.h" />
+    <ClInclude Include="Nova\Core\Modules\Rendering\GraphicsContext.h" />
+    <ClInclude Include="Nova\Core\Modules\Rendering\RenderingBackend.h" />
+    <ClInclude Include="Nova\Core\Modules\Rendering\RenderModule.h" />
     <ClInclude Include="Nova\Core\Modules\Windowing\WindowingModule.h" />
     <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.h" />
     <ClInclude Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.h" />
@@ -170,6 +177,8 @@
     <ClInclude Include="Nova\Platform\Windows\Core\Engine_Windows.h" />
     <ClInclude Include="Nova\Platform\Windows\Core\Entry_Windows.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Vendor\glad\include\glad\glad.h" />
+    <ClInclude Include="Vendor\glad\include\KHR\khrplatform.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Nova\Core\App\App.cpp" />
@@ -182,6 +191,9 @@
     <ClCompile Include="Nova\Core\Logging\LogSink.cpp" />
     <ClCompile Include="Nova\Core\Modules\AppModule.cpp" />
     <ClCompile Include="Nova\Core\Modules\AppModuleException.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Rendering\Backends\OpenGL\OpenGLGraphicsContext.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Rendering\Backends\OpenGL\OpenGLRenderingBackend.cpp" />
+    <ClCompile Include="Nova\Core\Modules\Rendering\RenderModule.cpp" />
     <ClCompile Include="Nova\Core\Modules\Windowing\WindowingModule.cpp" />
     <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindowingModule.cpp" />
     <ClCompile Include="Nova\Core\Modules\Windowing\GLFW\GLFWWindow.cpp" />
@@ -189,6 +201,7 @@
     <ClCompile Include="Nova\Core\Nodes\NodeTree.cpp" />
     <ClCompile Include="Nova\Core\Types\DateTime.cpp" />
     <ClCompile Include="Nova\Core\Types\Exception.cpp" />
+    <ClCompile Include="Vendor\glad\src\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="NovaEngine.rc" />

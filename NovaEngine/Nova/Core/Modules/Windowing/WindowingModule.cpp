@@ -30,11 +30,6 @@ namespace Nova::Windowing
 
 	// RefCounted ----------
 
-	Ref<WindowingModule> WindowingModule::Get()
-	{
-		return s_Instance.lock();
-	}
-
 	WeakRef<WindowingModule> WindowingModule::s_Instance;
 
 	Ref<Window> WindowingModule::CreateAndAddWindow(const WindowCreateParams& createParams)

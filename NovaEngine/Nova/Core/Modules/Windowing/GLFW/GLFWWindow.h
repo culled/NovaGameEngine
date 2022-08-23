@@ -41,6 +41,9 @@ namespace Nova::Windowing
 
 		virtual void Close() override;
 
+		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() override { return m_GraphicsContext; }
+		virtual void* GetNativeWindow() { return m_InternalWindow.get(); }
+
 	// Window ----------
 
 	private:
@@ -70,5 +73,8 @@ namespace Nova::Windowing
 
 		/// Pointer the the GLFWwindow object
 		std::unique_ptr<GLFWwindow, DestroyGLFWwindow> m_InternalWindow;
+
+		/// This window's graphics context
+		Ref<Rendering::GraphicsContext> m_GraphicsContext;
 	};
 }
