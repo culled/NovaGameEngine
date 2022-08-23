@@ -6,7 +6,7 @@
 #include "Nova/Core/Modules/Rendering/RenderModule.h"
 #include "Nova/Core/Modules/Rendering/Backends/OpenGL/OpenGLGraphicsContext.h"
 
-#include "Vendor/glfw/include/GLFW/glfw3.h"
+#include "GLFW/glfw3.h"
 
 namespace Nova::Windowing
 {
@@ -25,7 +25,7 @@ namespace Nova::Windowing
 	// Window ----------
 	void GLFWWindow::Close()
 	{
-		glfwSetWindowShouldClose(m_InternalWindow.get(), GL_TRUE);
+		glfwSetWindowShouldClose(m_InternalWindow.get(), 1);
 	}
 
 	// Window ----------
@@ -39,14 +39,14 @@ namespace Nova::Windowing
 
 		if (closingEvent.ShouldClose)
 		{
-			glfwSetWindowShouldClose(internalWindow, GL_TRUE);
+			glfwSetWindowShouldClose(internalWindow, 1);
 
 			window->OnClosed.EmitAnonymous();
 			WindowingModule::Get()->WindowClosed(window->GetSelfRef<GLFWWindow>());
 		}
 		else
 		{
-			glfwSetWindowShouldClose(internalWindow, GL_FALSE);
+			glfwSetWindowShouldClose(internalWindow, 0);
 		}
 	}
 

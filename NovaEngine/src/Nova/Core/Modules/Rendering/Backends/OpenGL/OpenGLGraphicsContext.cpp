@@ -2,7 +2,7 @@
 
 #include "Nova/Core/App/App.h"
 
-#include "Vendor/glad/include/glad/glad.h"
+#include "glad/glad.h"
 
 namespace Nova::Rendering
 {

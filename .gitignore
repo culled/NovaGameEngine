@@ -364,3 +364,8 @@ FodyWeavers.xsd
 
 # Documentation folder
 doc/generated/
+
+# VisualStudio solution and projects
+**/*.sln
+**/*.vcxproj
+**/*.filters

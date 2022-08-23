@@ -4,7 +4,7 @@
 #include "Nova/Core/Modules/AppModuleException.h"
 #include "GLFWWindow.h"
 
-#include "Vendor/glfw/include/GLFW/glfw3.h"
+#include "GLFW/glfw3.h"
 
 namespace Nova::Windowing
 {
