@@ -1,0 +1,3 @@
+[submodule "NovaEngine/vendor/glfw"]
+	path = NovaEngine/vendor/glfw
+	url = https://github.com/glfw/glfw.git
