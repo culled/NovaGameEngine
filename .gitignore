@@ -362,11 +362,5 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Build folder
-bin/
-
-# Intermediate folder
-int/
-
 # Documentation folder
 doc/generated/
