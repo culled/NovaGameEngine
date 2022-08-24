@@ -4,6 +4,7 @@
 
 #include "Nova/Core/Modules/AppModule.h"
 #include "Window.h"
+#include "WindowingBackend.h"
 
 namespace Nova::Windowing
 {
@@ -13,9 +14,8 @@ namespace Nova::Windowing
 	class NovaAPI WindowingModule : public AppModule
 	{
 	public:
-		WindowingModule(int tickOffset);
-
-		virtual ~WindowingModule();
+		WindowingModule(int tickOffset, WindowingAPI windowingAPI);
+		~WindowingModule();
 
 	// RefCounted ----------
 	protected:
@@ -23,12 +23,15 @@ namespace Nova::Windowing
 
 	// RefCounted ----------
 
+	// TickListener ----------
+	public:
+		virtual void Tick(double deltaTime) override;
+
+	// TickListener ----------
+	
 	// AppModule ----------
 	protected:
-		virtual int GetDefaultTickOrder() const override
-		{ 
-			return static_cast<int>(AppModule::BuiltInModuleOffset::WindowingModule);
-		}
+		virtual int GetDefaultTickOrder() const override { return static_cast<int>(AppModule::BuiltInModuleOffset::WindowingModule); }
 
 	// AppModule ----------
 
@@ -45,6 +48,12 @@ namespace Nova::Windowing
 
 	public:
 		/// <summary>
+		/// Gets the backend for this WindowingModule
+		/// </summary>
+		/// <returns>The backend for this WindowingModule</returns>
+		Ref<WindowingBackend> GetBackend() const { return m_WindowingBackend; }
+
+		/// <summary>
 		/// Creates a window and adds it to this windowing module's list of windows
 		/// </summary>
 		/// <param name="width">The initial width of the window</param>
@@ -54,49 +63,28 @@ namespace Nova::Windowing
 		Ref<Window> CreateAndAddWindow(const WindowCreateParams& createParams);
 
 		/// <summary>
-		/// Gets the number of windows in this windowing module
-		/// </summary>
-		/// <returns>The number of windows in this windowing module</returns>
-		size_t GetWindowCount() const { return m_Windows.size(); }
-
-		/// <summary>
 		/// Sets the given window as the "main window" for this application
 		/// </summary>
 		/// <param name="window">The window to set as the main window</param>
-		void SetMainWindow(Ref<Window> window);
+		void SetMainWindow(Ref<Window> window) { m_WindowingBackend->SetMainWindow(window); }
 
 		/// <summary>
 		/// Gets the main window for this application (if one has been assigned/created)
 		/// </summary>
 		/// <returns>The main window, or nullptr if no window has been created/assigned</returns>
-		Ref<Window> GetMainWindow() const { return m_MainWindow; }
+		Ref<Window> GetMainWindow() const { return m_WindowingBackend->GetMainWindow(); }
 
+	private:
 		/// <summary>
-		/// Called when a window closed
+		/// Creates the windowing backend
 		/// </summary>
-		/// <param name="window">The window that closed</param>
-		void WindowClosed(Ref<Window> window);
+		/// <param name="backendAPI">The backend API to create</param>
+		void CreateBackend(WindowingAPI backendAPI);
 
-	protected:
+	private:
 		/// <summary>
-		/// Virtual method for creating a window
+		/// The backend this WindowingModule uses
 		/// </summary>
-		/// <returns>A created window</returns>
-		virtual Ref<Window> CreateWindow(const WindowCreateParams& createParams) = 0;
-
-		virtual void ReleaseAllWindows();
-
-		/// <summary>
-		/// Callback for when the main window is trying to close
-		/// </summary>
-		/// <param name="e">The event</param>
-		void MainWindowClosingCallback(WindowClosingEvent& e);
-
-	protected:
-		/// The main window of the application
-		Ref<Window> m_MainWindow;
-
-		/// A list of all windows managed by this WindowingModule
-		List<Ref<Window>> m_Windows;
+		Ref<WindowingBackend> m_WindowingBackend;
 	};
 }

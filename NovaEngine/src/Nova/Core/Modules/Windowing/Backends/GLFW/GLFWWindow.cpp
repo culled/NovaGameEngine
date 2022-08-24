@@ -2,9 +2,10 @@
 
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Modules/AppModuleException.h"
-#include "Nova/Core/Modules/Windowing/WindowingModule.h"
 #include "Nova/Core/Modules/Rendering/RenderModule.h"
 #include "Nova/Core/Modules/Rendering/Backends/OpenGL/OpenGLGraphicsContext.h"
+#include "Nova/Core/Modules/Windowing/WindowingModule.h"
+#include "Nova/Core/Modules/Windowing/WindowingBackend.h"
 
 #include "GLFW/glfw3.h"
 
@@ -14,6 +15,7 @@ namespace Nova::Windowing
 		m_Width(createParams.InitialWidth), m_Height(createParams.InitialHeight), m_Title(createParams.Title)
 	{
 		App::LogCore(LogLevel::Verbose, "********** Creating a GLFW window **********");
+
 		CreateInternalWindow();
 		SetVSyncEnabled(createParams.VSync);
 
@@ -37,6 +39,7 @@ namespace Nova::Windowing
 	{
 		GLFWWindow* window = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(internalWindow));
 
+		// Emit the closing event
 		WindowClosingEvent closingEvent;
 		window->OnClosing.Emit(closingEvent);
 
@@ -45,7 +48,7 @@ namespace Nova::Windowing
 			glfwSetWindowShouldClose(internalWindow, 1);
 
 			window->OnClosed.EmitAnonymous();
-			WindowingModule::Get()->WindowClosed(window->GetSelfRef<GLFWWindow>());
+			WindowingModule::Get()->GetBackend()->RemoveWindow(window->GetSelfRef<GLFWWindow>());
 		}
 		else
 		{

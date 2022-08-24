@@ -116,7 +116,7 @@ namespace Nova
 		/// Attempts to quit the application
 		/// </summary>
 		/// <param name="exitCode">The exit code to exit with if successful</param>
-		virtual void Quit(AppExitCode exitCode = AppExitCode::SUCCESS);
+		virtual bool Quit(AppExitCode exitCode = AppExitCode::SUCCESS);
 
 		/// <summary>
 		/// Loads an AppModule into this application

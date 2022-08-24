@@ -67,7 +67,7 @@ namespace Nova
 		}
 	}
 
-	void App::Quit(AppExitCode exitCode)
+	bool App::Quit(AppExitCode exitCode)
 	{
 		AppQuittingEvent quittingEvent;
 		OnAppQuitting.Emit(quittingEvent);
@@ -76,7 +76,11 @@ namespace Nova
 		{	
 			m_ExitCode = exitCode;
 			m_MainLoop->Stop();
+
+			return true;
 		}
+		
+		return false;
 	}
 
 	void App::CreateDefaultLogSinks(LogLevel coreLevel, LogLevel appLevel)

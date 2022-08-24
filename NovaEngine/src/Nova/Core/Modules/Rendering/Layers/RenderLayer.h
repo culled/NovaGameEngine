@@ -6,7 +6,8 @@
 namespace Nova::Rendering
 {
     /// <summary>
-    /// Base class for a render layer
+    /// Base class for a render layer.
+    /// A RenderLayer defines what kinds of things get rendered to it. Subsequent layers render over earlier layers to create a final, composited image
     /// </summary>
     class NovaAPI RenderLayer : public RefCounted
     {
