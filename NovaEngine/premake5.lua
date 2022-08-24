@@ -18,12 +18,14 @@ project "NovaEngine"
         "%{IncludeDir.nova}",
         "%{IncludeDir.glfw}",
         "%{IncludeDir.glad}",
+        "%{IncludeDir.ImGui}",
     }
 
     links
     {
         "GLFW",
         "GLAD",
+        "ImGui",
     }
 
     filter "system:windows"

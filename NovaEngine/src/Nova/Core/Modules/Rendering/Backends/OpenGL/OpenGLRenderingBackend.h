@@ -11,14 +11,21 @@ namespace Nova::Rendering
 	class NovaAPI OpenGLRenderingBackend : public RenderingBackend
 	{
 	public:
-		OpenGLRenderingBackend() = default;
-		~OpenGLRenderingBackend() = default;
+		OpenGLRenderingBackend();
+		~OpenGLRenderingBackend();
 
 	// RenderingBackend ----------
 	public:
 		virtual RenderingBackendAPI GetAPI() const override { return RenderingBackendAPI::OpenGL; }
-		virtual Ref<GraphicsContext> CreateGraphicsContext() override;
+		virtual Ref<GraphicsContext> CreateGraphicsContext(uint32_t width, uint32_t height) override;
+		virtual List<Ref<GraphicsContext>> GetActiveGraphicsContexts() override;
 
 	// RenderingBackend ----------
+
+	private:
+		/// <summary>
+		/// Weak references to all created graphics contexts
+		/// </summary>
+		List<WeakRef<GraphicsContext>> m_GraphicsContexts;
 	};
 }

@@ -37,6 +37,11 @@ namespace Nova
 		return sp_AppInstance->m_StartTime;
 	}
 
+	double App::GetDeltaTime()
+	{
+		return sp_AppInstance->m_MainLoop->GetDeltaTime();
+	}
+
 	App* App::sp_AppInstance = nullptr;
 
 	App::AppExitCode App::Run()

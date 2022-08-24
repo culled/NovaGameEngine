@@ -2,6 +2,7 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/AppModule.h"
+#include "Layers/RenderLayerStack.h"
 #include "RenderingBackend.h"
 
 namespace Nova::Rendering
@@ -13,7 +14,7 @@ namespace Nova::Rendering
 	{
 	public:
 		RenderModule(int tickOrderOffset, RenderingBackendAPI backendAPI);
-		virtual ~RenderModule() = default;
+		~RenderModule();
 
 	// RefCounted ----------
 	protected:
@@ -23,7 +24,7 @@ namespace Nova::Rendering
 		
 	// TickListener ----------
 	public:
-		virtual void Tick(double deltaTime) override {}
+		virtual void Tick(double deltaTime) override;
 
 	// TickListener ----------
 	
@@ -54,6 +55,9 @@ namespace Nova::Rendering
 		/// <returns>The current rendering backend</returns>
 		Ref<RenderingBackend> GetBackend() { return m_RenderingBackend; }
 
+		void AppendRenderLayer(Ref<RenderLayer> layer);
+		void RemoveRenderLayer(Ref<RenderLayer> layer);
+
 	private:
 		/// <summary>
 		/// Creates the rendering backend
@@ -64,5 +68,10 @@ namespace Nova::Rendering
 	private:
 		/// The rendering backend this RenderModule is using
 		Ref<RenderingBackend> m_RenderingBackend;
+
+		/// <summary>
+		/// The stack of RenderLayers
+		/// </summary>
+		RenderLayerStack m_RenderLayerStack;
 	};
 }

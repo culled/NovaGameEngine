@@ -12,9 +12,6 @@ namespace Nova::Rendering
 	class NovaAPI GraphicsContext : public RefCounted
 	{
 	public:
-		using MakeCurrentDelegate = std::function<void()>;
-
-	public:
 		GraphicsContext() = default;
 		virtual ~GraphicsContext() = default;
 
@@ -25,16 +22,38 @@ namespace Nova::Rendering
 		virtual void MakeCurrent() = 0;
 
 		/// <summary>
-		/// For windowing systems that own a graphics context, this allows them to set a callback so when this
-		/// graphics context is made current, it will use this callback instead
-		/// </summary>
-		/// <param name="func">The callback to use when this context is requested to be made current</param>
-		virtual void SetMakeCurrentCallback(MakeCurrentDelegate func) = 0;
-
-		/// <summary>
 		/// Loads extensions for this graphics context
 		/// </summary>
 		/// <param name="procFunc">The function that returns pointers to extension functions</param>
 		virtual void LoadExtensions(void* procFunc) = 0;
+
+		/// <summary>
+		/// Swaps the front and back buffers of this context
+		/// </summary>
+		virtual void SwapBuffers() = 0;
+
+		/// <summary>
+		/// Sets the width of this graphics context
+		/// </summary>
+		/// <param name="width">The new width for the context</param>
+		virtual void SetWidth(uint32_t width) = 0;
+
+		/// <summary>
+		/// Gets the width of this graphics context
+		/// </summary>
+		/// <returns>The width of this graphics context</returns>
+		virtual uint32_t GetWidth() const = 0;
+
+		/// <summary>
+		/// Sets the height of this graphics context
+		/// </summary>
+		/// <param name="width">The new height for the context</param>
+		virtual void SetHeight(uint32_t height) = 0;
+
+		/// <summary>
+		/// Gets the height of this graphics context
+		/// </summary>
+		/// <returns>The height of this graphics context</returns>
+		virtual uint32_t GetHeight() const = 0;
 	};
 }

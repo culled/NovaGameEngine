@@ -52,6 +52,11 @@ namespace Nova::Windowing
 		/// </summary>
 		static void CloseCallback(GLFWwindow* window);
 
+		/// <summary>
+		/// Callback when the internal window is resized
+		/// </summary>
+		static void ResizeCallback(GLFWwindow* window, int newWidth, int newHeight);
+
 	private:
 		/// <summary>
 		/// Creates the internal GLFW window

@@ -14,6 +14,12 @@ namespace Nova::Windowing
 		GLFWWindowingModule(int tickOffset);
 		~GLFWWindowingModule();
 
+	// RefCounted ----------
+	protected:
+		virtual void Init() override;
+
+	// RefCounted ----------
+
 	// TickListener ----------
 	public:
 		virtual void Tick(double deltaTime) override;

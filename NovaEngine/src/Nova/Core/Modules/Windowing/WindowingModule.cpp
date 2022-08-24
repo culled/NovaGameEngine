@@ -18,14 +18,13 @@ namespace Nova::Windowing
 	{
 		ReleaseAllWindows();
 
-		App::LogCore(LogLevel::Verbose, "DisplayModule destroyed");
+		App::LogCore(LogLevel::Verbose, "********** WindowingModule destroyed **********");
 	}
 
 	// RefCounted ----------
 	void WindowingModule::Init()
 	{
 		s_Instance = GetSelfWeakRef<WindowingModule>();
-		App::LogCore(LogLevel::Verbose, "DisplayModule created successfully");
 	}
 
 	// RefCounted ----------

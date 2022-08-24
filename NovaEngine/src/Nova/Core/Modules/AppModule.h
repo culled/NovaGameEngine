@@ -18,6 +18,7 @@ namespace Nova
 		enum class BuiltInModuleOffset
 		{
 			WindowingModule = -1000,
+			ImGuiModule = 900,
 			RenderingModule = 1000,
 		};
 

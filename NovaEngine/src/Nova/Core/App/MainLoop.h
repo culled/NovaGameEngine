@@ -47,6 +47,12 @@ namespace Nova
 		/// <param name="listener">The listener to remove</param>
 		void RemoveTickListener(Ref<TickListener> listener);
 
+		/// <summary>
+		/// Gets the time between the current tick and the last tick
+		/// </summary>
+		/// <returns>The time between ticks (in seconds)</returns>
+		double GetDeltaTime() const { return m_CurrentDeltaTime; }
+
 	private:
 		/// <summary>
 		/// Sorts the list of tick listeners based on their order
@@ -70,5 +76,10 @@ namespace Nova
 
 		/// The time listeners were last ticked
 		TimeSpan m_LastTickTime;
+
+		/// <summary>
+		/// The current time between ticks
+		/// </summary>
+		double m_CurrentDeltaTime;
 	};
 }

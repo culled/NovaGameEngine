@@ -6,6 +6,7 @@
 
 #include <Nova/Core/Engine.h>
 #include <Nova/Core/App/App.h>
+#include <Nova/ImGui/ImGuiRenderLayer.h>
 
 class ExampleApp : public Nova::App
 {
@@ -16,6 +17,8 @@ public:
 	//virtual Nova::App::AppExitCode Run() override;
 
 	void OnQuitting(Nova::AppQuittingEvent& e);
+
+	void OnImGuiDraw(Nova::ImGui::ImGuiRenderEvent& e);
 };
 
 // Define this as the application class that will be created for the lifetime of the app

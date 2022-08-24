@@ -16,11 +16,13 @@ project "ExampleApp"
     includedirs
     {
         "%{IncludeDir.nova}",
+        "%{IncludeDir.ImGui}",
     }
 
     links
     {
         "NovaEngine",
+        "ImGui",
     }
 
     filter "system:windows"

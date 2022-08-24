@@ -92,7 +92,7 @@ namespace Nova
 
 		// Calculate the delta time between ticks
 		TimeSpan currentTime = TimeSpan::Now();
-		double deltaTime = (currentTime - m_LastTickTime).GetTotalSeconds();
+		m_CurrentDeltaTime = (currentTime - m_LastTickTime).GetTotalSeconds();
 		m_LastTickTime = currentTime;
 
 		// Tick every listener
@@ -103,7 +103,7 @@ namespace Nova
 			// TODO: remove dead listener pointers
 			if (listenerPtr)
 			{
-				listenerPtr->NotifyTick(deltaTime);
+				listenerPtr->NotifyTick(m_CurrentDeltaTime);
 			}
 		}
 	}

@@ -66,6 +66,12 @@ namespace Nova
 		static TimeSpan GetStartTime();
 
 		/// <summary>
+		/// Gets the time between the last tick and the current tick
+		/// </summary>
+		/// <returns>The time between ticks (in seconds)</returns>
+		static double GetDeltaTime();
+
+		/// <summary>
 		/// Logs to the app's logger
 		/// </summary>
 		/// <param name="level">The log level of the message</param>

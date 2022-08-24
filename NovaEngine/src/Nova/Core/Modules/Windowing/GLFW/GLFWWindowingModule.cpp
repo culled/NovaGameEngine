@@ -12,11 +12,6 @@ namespace Nova::Windowing
 		WindowingModule(tickOffset)
 	{
 		SetListenForTicks(true);
-
-		if (!s_GLFWInitialized)
-		{
-			InitGLFW();
-		}
 	}
 
 	GLFWWindowingModule::~GLFWWindowingModule()
@@ -29,6 +24,23 @@ namespace Nova::Windowing
 			TerminateGLFW();
 		}
 	}
+
+	// RefCounted ----------
+	void GLFWWindowingModule::Init()
+	{
+		App::LogCore(LogLevel::Verbose, "********** Initializing GLFWWindowingModule... **********");
+
+		WindowingModule::Init();
+
+		if (!s_GLFWInitialized)
+		{
+			InitGLFW();
+		}
+
+		App::LogCore(LogLevel::Verbose, "********** GLFWWindowingModule initialized successfully **********");
+	}
+
+	// RefCounted ----------
 
 	// TickListener ----------
 	void GLFWWindowingModule::Tick(double deltaTime)

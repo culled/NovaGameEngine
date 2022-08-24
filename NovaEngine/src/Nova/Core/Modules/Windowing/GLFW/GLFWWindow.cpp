@@ -13,13 +13,16 @@ namespace Nova::Windowing
 	GLFWWindow::GLFWWindow(const WindowCreateParams& createParams) :
 		m_Width(createParams.InitialWidth), m_Height(createParams.InitialHeight), m_Title(createParams.Title)
 	{
+		App::LogCore(LogLevel::Verbose, "********** Creating a GLFW window **********");
 		CreateInternalWindow();
 		SetVSyncEnabled(createParams.VSync);
+
+		App::LogCore(LogLevel::Verbose, "********** Created a GLFW window successfully **********");
 	}
 
 	GLFWWindow::~GLFWWindow()
 	{
-		App::LogCore(LogLevel::Verbose, "Destroyed a GLFW window");
+		App::LogCore(LogLevel::Verbose, "********** Destroyed a GLFW window **********");
 	}
 
 	// Window ----------
@@ -50,6 +53,14 @@ namespace Nova::Windowing
 		}
 	}
 
+	void GLFWWindow::ResizeCallback(GLFWwindow* internalWindow, int newWidth, int newHeight)
+	{
+		GLFWWindow* window = static_cast<GLFWWindow*>(glfwGetWindowUserPointer(internalWindow));
+
+		window->m_GraphicsContext->SetWidth((uint32_t)newWidth);
+		window->m_GraphicsContext->SetHeight((uint32_t)newHeight);
+	}
+
 	void GLFWWindow::CreateInternalWindow()
 	{
 		Rendering::RenderingBackendAPI backendAPI = Rendering::RenderModule::Get()->GetBackend()->GetAPI();
@@ -74,28 +85,34 @@ namespace Nova::Windowing
 		// Set the callback for when the window tries to close
 		glfwSetWindowCloseCallback(internalWindow, &GLFWWindow::CloseCallback);
 
+		// Set the callback for when the window is resized
+		glfwSetWindowSizeCallback(internalWindow, &GLFWWindow::ResizeCallback);
+
 		m_InternalWindow.reset(internalWindow);
 
 		// Create a graphics context for this window
-		m_GraphicsContext = Rendering::RenderModule::Get()->GetBackend()->CreateGraphicsContext();
+		m_GraphicsContext = Rendering::RenderModule::Get()->GetBackend()->CreateGraphicsContext(m_Width, m_Height);
 
 		// Since GLFW contains an OpenGL context, and the rendering system is decoupled from the windowing system,
 		// we need to do some workarounds to load our OpenGL extensions properly
-		if (backendAPI == Rendering::RenderingBackendAPI::OpenGL)
+		if (Rendering::OpenGLGraphicsContext* openGLContext = dynamic_cast<Rendering::OpenGLGraphicsContext*>(m_GraphicsContext.get()))
 		{
 			// Set a callback in the graphics context to tell GLFW to make the corresponding window's context current
-			m_GraphicsContext->SetMakeCurrentCallback([&]() {
+			openGLContext->SetMakeCurrentCallback([&]() {
 				glfwMakeContextCurrent(m_InternalWindow.get());
 			});
 
+			// Set a callback in the graphics context to tell GLFW to swap the corresponding window's buffers
+			openGLContext->SetSwapBuffersCallback([&]() {
+				glfwSwapBuffers(m_InternalWindow.get());
+				});
+
 			// Make this window's context current
-			m_GraphicsContext->MakeCurrent();
+			openGLContext->MakeCurrent();
 
 			// Load extensions into this context
 			m_GraphicsContext->LoadExtensions(glfwGetProcAddress);
 		}
-
-		App::LogCore(LogLevel::Verbose, "Created a GLFW window");
 	}
 
 	void GLFWWindow::SetVSyncEnabled(bool enabled)
