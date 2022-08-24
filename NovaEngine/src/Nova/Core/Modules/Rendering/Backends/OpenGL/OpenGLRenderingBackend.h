@@ -17,8 +17,9 @@ namespace Nova::Rendering
 	// RenderingBackend ----------
 	public:
 		virtual RenderingBackendAPI GetAPI() const override { return RenderingBackendAPI::OpenGL; }
-		virtual Ref<GraphicsContext> CreateGraphicsContext(uint32_t width, uint32_t height) override;
+		virtual void InitGraphicsContext(Ref<GraphicsContext> context) override;
 		virtual List<Ref<GraphicsContext>> GetActiveGraphicsContexts() override;
+		virtual void LoadExtensionsForGraphicsContext(Ref<GraphicsContext> context) override;
 
 	// RenderingBackend ----------
 

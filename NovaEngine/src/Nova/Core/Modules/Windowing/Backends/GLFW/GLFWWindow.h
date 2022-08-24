@@ -2,6 +2,7 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/Windowing/Window.h"
+#include "GLFWGraphicsContext.h"
 
 #include "GLFW/glfw3.h"
 
@@ -80,6 +81,6 @@ namespace Nova::Windowing
 		std::unique_ptr<GLFWwindow, DestroyGLFWwindow> m_InternalWindow;
 
 		/// This window's graphics context
-		Ref<Rendering::GraphicsContext> m_GraphicsContext;
+		Ref<GLFWGraphicsContext> m_GraphicsContext;
 	};
 }

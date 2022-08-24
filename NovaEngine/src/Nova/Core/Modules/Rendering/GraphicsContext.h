@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Nova/Core/Engine.h"
+#include "Nova/Core/Nodes/NodeTree.h"
 
 #include <functional>
 
@@ -22,10 +23,10 @@ namespace Nova::Rendering
 		virtual void MakeCurrent() = 0;
 
 		/// <summary>
-		/// Loads extensions for this graphics context
+		/// Gets the implementation-specific function that loads extensions into this context
 		/// </summary>
 		/// <param name="procFunc">The function that returns pointers to extension functions</param>
-		virtual void LoadExtensions(void* procFunc) = 0;
+		virtual void* GetExtensionsFunction() const = 0;
 
 		/// <summary>
 		/// Swaps the front and back buffers of this context
@@ -55,5 +56,17 @@ namespace Nova::Rendering
 		/// </summary>
 		/// <returns>The height of this graphics context</returns>
 		virtual uint32_t GetHeight() const = 0;
+
+		/// <summary>
+		/// Sets the node tree that will be used when this graphics context is rendered to
+		/// </summary>
+		/// <param name="nodeTree">The node tree</param>
+		virtual void SetNodeTreeContext(Ref<NodeTree> nodeTree) = 0;
+
+		/// <summary>
+		/// Gets this context's NodeTree
+		/// </summary>
+		/// <returns>This context's NodeTree</returns>
+		virtual Ref<NodeTree> GetNodeTreeContext() const = 0;
 	};
 }

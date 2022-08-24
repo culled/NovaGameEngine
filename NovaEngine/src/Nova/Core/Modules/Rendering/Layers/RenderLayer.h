@@ -6,6 +6,13 @@
 namespace Nova::Rendering
 {
     /// <summary>
+    /// A list of default render layer IDs
+    /// </summary>
+    enum class DefaultRenderLayerIDs {
+        ImGui = 100
+    };
+
+    /// <summary>
     /// Base class for a render layer.
     /// A RenderLayer defines what kinds of things get rendered to it. Subsequent layers render over earlier layers to create a final, composited image
     /// </summary>
@@ -25,6 +32,8 @@ namespace Nova::Rendering
         /// Called when this layer should finish rendering a frame
         /// </summary>
         virtual void EndFrame(Ref<GraphicsContext> currentContext, double deltaTime) = 0;
+
+        virtual int GetID() const = 0;
     };
 }
 

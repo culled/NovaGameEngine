@@ -30,6 +30,8 @@ namespace Nova::ImGui
 	public:
 		virtual void BeginFrame(Ref<Rendering::GraphicsContext> currentContext, double deltaTime) override;
 		virtual void EndFrame(Ref<Rendering::GraphicsContext> currentContext, double deltaTime) override;
+		virtual int GetID() const override { return static_cast<int>(Rendering::DefaultRenderLayerIDs::ImGui); }
+
 	// RenderLayer ----------
 
 	private:

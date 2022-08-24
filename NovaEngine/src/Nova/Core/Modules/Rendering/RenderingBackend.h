@@ -31,15 +31,21 @@ namespace Nova::Rendering
 		virtual RenderingBackendAPI GetAPI() const = 0;
 
 		/// <summary>
-		/// Creates a graphics context
+		/// Initializes a graphics context to use with this RenderingBackend
 		/// </summary>
-		/// <returns>A new graphics context</returns>
-		virtual Ref<GraphicsContext> CreateGraphicsContext(uint32_t width, uint32_t height) = 0;
+		/// <param name="context">The context to initialize</param>
+		virtual void InitGraphicsContext(Ref<GraphicsContext> context) = 0;
 
 		/// <summary>
 		/// Gets a list of all the active graphics contexts for the application
 		/// </summary>
 		/// <returns>A list of all active graphics contexts</returns>
 		virtual List<Ref<GraphicsContext>> GetActiveGraphicsContexts() = 0;
+
+		/// <summary>
+		/// Loads graphics extensions for the given GraphicsContext
+		/// </summary>
+		/// <param name="context">The context to load extensions for</param>
+		virtual void LoadExtensionsForGraphicsContext(Ref<GraphicsContext> context) = 0;
 	};
 }

@@ -1,7 +1,8 @@
 #include "OpenGLRenderingBackend.h"
 
 #include "Nova/Core/App/App.h"
-#include "OpenGLGraphicsContext.h"
+
+#include "glad/glad.h"
 
 namespace Nova::Rendering
 {
@@ -15,11 +16,10 @@ namespace Nova::Rendering
 		App::LogCore(LogLevel::Verbose, "Destroyed OpenGL rendering backend");
 	}
 
-	Ref<GraphicsContext> OpenGLRenderingBackend::CreateGraphicsContext(uint32_t width, uint32_t height)
+	void OpenGLRenderingBackend::InitGraphicsContext(Ref<GraphicsContext> context)
 	{
-		auto context = MakeRef<OpenGLGraphicsContext>(width, height);
 		m_GraphicsContexts.push_back(context);
-		return context;
+		LoadExtensionsForGraphicsContext(context);
 	}
 
 	List<Ref<GraphicsContext>> OpenGLRenderingBackend::GetActiveGraphicsContexts()
@@ -44,5 +44,24 @@ namespace Nova::Rendering
 		}
 
 		return contexts;
+	}
+
+	void OpenGLRenderingBackend::LoadExtensionsForGraphicsContext(Ref<GraphicsContext> context)
+	{
+		context->MakeCurrent();
+
+		void* procFunc = context->GetExtensionsFunction();
+
+		// Load extensions via glad
+		int gladStatus = gladLoadGLLoader((GLADloadproc)procFunc);
+		if (gladStatus == 0)
+		{
+			throw Exception("Failed to initialize Glad");
+		}
+
+		// Print out some OpenGL info
+		const char* vendorStr = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
+		const char* versionStr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+		App::LogCore(LogLevel::Info, "Initialized OpenGL context - Vendor: {0}, Version: {1}", vendorStr, versionStr);
 	}
 }

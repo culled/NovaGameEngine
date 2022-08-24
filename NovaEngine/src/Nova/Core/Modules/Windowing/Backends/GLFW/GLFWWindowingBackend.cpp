@@ -72,6 +72,9 @@ namespace Nova::Windowing
 
 		m_MainWindow = window;
 
+		// Set the tree context of the main window's graphics context to the app's NodeTree
+		m_MainWindow->GetGraphicsContext()->SetNodeTreeContext(App::Get()->GetNodeTree());
+
 		m_MainWindow->OnClosing.Connect(self, &GLFWWindowingBackend::MainWindowClosingCallback);
 	}
 

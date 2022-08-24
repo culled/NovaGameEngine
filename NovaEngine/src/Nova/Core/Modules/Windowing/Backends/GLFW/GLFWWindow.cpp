@@ -3,9 +3,9 @@
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Modules/AppModuleException.h"
 #include "Nova/Core/Modules/Rendering/RenderModule.h"
-#include "Nova/Core/Modules/Rendering/Backends/OpenGL/OpenGLGraphicsContext.h"
 #include "Nova/Core/Modules/Windowing/WindowingModule.h"
 #include "Nova/Core/Modules/Windowing/WindowingBackend.h"
+#include "GLFWGraphicsContext.h"
 
 #include "GLFW/glfw3.h"
 
@@ -94,28 +94,11 @@ namespace Nova::Windowing
 		m_InternalWindow.reset(internalWindow);
 
 		// Create a graphics context for this window
-		m_GraphicsContext = Rendering::RenderModule::Get()->GetBackend()->CreateGraphicsContext(m_Width, m_Height);
+		m_GraphicsContext = MakeRef<GLFWGraphicsContext>(m_Width, m_Height);
+		m_GraphicsContext->SetInternalContext(internalWindow);
 
-		// Since GLFW contains an OpenGL context, and the rendering system is decoupled from the windowing system,
-		// we need to do some workarounds to load our OpenGL extensions properly
-		if (Rendering::OpenGLGraphicsContext* openGLContext = dynamic_cast<Rendering::OpenGLGraphicsContext*>(m_GraphicsContext.get()))
-		{
-			// Set a callback in the graphics context to tell GLFW to make the corresponding window's context current
-			openGLContext->SetMakeCurrentCallback([&]() {
-				glfwMakeContextCurrent(m_InternalWindow.get());
-			});
-
-			// Set a callback in the graphics context to tell GLFW to swap the corresponding window's buffers
-			openGLContext->SetSwapBuffersCallback([&]() {
-				glfwSwapBuffers(m_InternalWindow.get());
-				});
-
-			// Make this window's context current
-			openGLContext->MakeCurrent();
-
-			// Load extensions into this context
-			m_GraphicsContext->LoadExtensions(glfwGetProcAddress);
-		}
+		// Initialize our GraphicsContext
+		Rendering::RenderModule::Get()->GetBackend()->InitGraphicsContext(m_GraphicsContext);
 	}
 
 	void GLFWWindow::SetVSyncEnabled(bool enabled)
