@@ -1,3 +1,6 @@
 [submodule "NovaEngine/vendor/glfw"]
 	path = NovaEngine/vendor/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "NovaEngine/vendor/ImGui"]
+	path = NovaEngine/vendor/ImGui
+	url = https://github.com/ocornut/imgui.git
