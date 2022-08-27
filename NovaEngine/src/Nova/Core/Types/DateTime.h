@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
-#include "String.h"
+#include <stdint.h>
 
 namespace Nova
 {
@@ -13,15 +13,10 @@ namespace Nova
 	{
 	public:
 		/// <summary>
-		/// Creates a TimeSpan representing a zero duration
-		/// </summary>
-		TimeSpan();
-
-		/// <summary>
 		/// Creates a TimeSpan with the given duration of microseconds
 		/// </summary>
 		/// <param name="microseconds">The number of microseconds that have passed</param>
-		TimeSpan(uint64_t microseconds);
+		TimeSpan(uint64_t microseconds = 0);
 
 	public:
 		/// <summary>

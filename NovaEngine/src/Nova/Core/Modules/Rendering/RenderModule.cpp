@@ -8,8 +8,6 @@ namespace Nova::Rendering
 	RenderModule::RenderModule(int tickOrderOffset, RenderingBackendAPI backendAPI) :
 		AppModule(tickOrderOffset)
 	{
-		SetListenForTicks(true);
-
 		if (s_Instance.lock())
 		{
 			// Can't have more than one render module!
@@ -18,6 +16,7 @@ namespace Nova::Rendering
 
 		App::LogCore(LogLevel::Verbose, "********** Initializing RenderModule... *********");
 
+		SetListenForTicks(true);
 		CreateBackend(backendAPI);
 	}
 
@@ -39,22 +38,36 @@ namespace Nova::Rendering
 	// TickListener ----------
 	void RenderModule::Tick(double deltaTime)
 	{
-		auto contexts = m_RenderingBackend->GetActiveGraphicsContexts();
+		m_RenderLayerStack.BeginFrame(deltaTime);
 
+		auto contexts = m_RenderingBackend->GetGraphicsContexts();
+
+		// Render for each context
 		for (const auto& context : contexts)
 		{
 			context->MakeCurrent();
-			m_RenderLayerStack.BeginFrame(context, deltaTime);
-			m_RenderLayerStack.EndFrame(context, deltaTime);
-			context->SwapBuffers();
+
+			m_RenderLayerStack.RenderContext(context);
+
+			context->ReleaseCurrent();
 		}
+
+		// Swap all our context buffers
+		for (const auto& context : contexts)
+		{
+			context->MakeCurrent();
+			context->SwapBuffers();
+			context->ReleaseCurrent();
+		}
+
+		m_RenderLayerStack.EndFrame();
 	}
 
 	// TickListener ----------
 
 	WeakRef<RenderModule> RenderModule::s_Instance;
 
-	void RenderModule::AppendRenderLayer(Ref<RenderLayer> layer)
+	void RenderModule::AddRenderLayer(Ref<RenderLayer> layer)
 	{
 		m_RenderLayerStack.AppendLayer(layer);
 	}

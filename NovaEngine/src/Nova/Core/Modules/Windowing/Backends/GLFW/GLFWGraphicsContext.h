@@ -3,29 +3,37 @@
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/Rendering/GraphicsContext.h"
 
-#include <GLFW/glfw3.h>
+// Forward-declare so we don't include GLFW here
+struct GLFWwindow;
 
 namespace Nova::Windowing
 {
 	class NovaAPI GLFWGraphicsContext : public Rendering::GraphicsContext
 	{
 	public:
-		GLFWGraphicsContext(uint32_t width, uint32_t height);
+		GLFWGraphicsContext(GLFWwindow* internalContext, bool isShared);
 		~GLFWGraphicsContext() = default;
+
+		// RefCounted ----------
+	protected:
+		virtual void Init() override;
+
+		// RefCounted ----------
 
 		// GraphicsContext ----------
 	public:
 		virtual void MakeCurrent() override;
+		virtual void ReleaseCurrent() override;
+
 		virtual void* GetExtensionsFunction() const override;
+
 		virtual void SwapBuffers() override;
 
-		virtual void SetWidth(uint32_t width) override { m_Width = width; }
-		virtual uint32_t GetWidth() const override { return m_Width; }
-		virtual void SetHeight(uint32_t height) override { m_Height = height; }
-		virtual uint32_t GetHeight() const override { return m_Height; }
+		virtual Vector2i GetFramebufferSize() const override;
 
-		virtual void SetNodeTreeContext(Ref<NodeTree> nodeTree) override { m_NodeTreeContext = nodeTree; }
-		virtual Ref<NodeTree> GetNodeTreeContext() const override { return m_NodeTreeContext; }
+		virtual void* GetPlatformHandle() const override { return m_InternalContext; }
+
+		virtual bool GetIsShared() const { return m_IsShared; }
 
 		// GraphicsContext ----------
 
@@ -35,25 +43,27 @@ namespace Nova::Windowing
 		/// <param name="window">The window and context</param>
 		void SetInternalContext(GLFWwindow* window) { m_InternalContext = window; }
 
+		/// <summary>
+		/// Gets the window context that this context is linked to
+		/// </summary>
+		/// <returns>The window context this GraphicsContext is linked to</returns>
+		GLFWwindow* GetInternalContext() const { return m_InternalContext; }
+
 	private:
 		/// <summary>
-		/// The width of this graphics context
+		/// Ensures we have a valid internal context
 		/// </summary>
-		uint32_t m_Width;
+		void EnsureInternalContext() const;
 
-		/// <summary>
-		/// The height of this graphics context
-		/// </summary>
-		uint32_t m_Height;
-
-		/// <summary>
-		/// The node tree this context is associated with
-		/// </summary>
-		Ref<NodeTree> m_NodeTreeContext;
-
+	private:
 		/// <summary>
 		/// The internal graphics context
 		/// </summary>
 		GLFWwindow* m_InternalContext;
+
+		/// <summary>
+		/// The shared state of this context
+		/// </summary>
+		bool m_IsShared = false;
 	};
 }

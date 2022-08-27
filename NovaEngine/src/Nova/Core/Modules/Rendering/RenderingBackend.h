@@ -40,7 +40,7 @@ namespace Nova::Rendering
 		/// Gets a list of all the active graphics contexts for the application
 		/// </summary>
 		/// <returns>A list of all active graphics contexts</returns>
-		virtual List<Ref<GraphicsContext>> GetActiveGraphicsContexts() = 0;
+		virtual List<Ref<GraphicsContext>> GetGraphicsContexts() = 0;
 
 		/// <summary>
 		/// Loads graphics extensions for the given GraphicsContext

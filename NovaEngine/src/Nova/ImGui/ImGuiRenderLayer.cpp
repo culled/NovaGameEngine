@@ -2,18 +2,82 @@
 
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Modules/Rendering/RenderModule.h"
+#include "Nova/Core/Modules/Windowing/WindowingModule.h"
 
 #include "renderers/ImGuiOpenGLRenderer.h"
 
-#include "imgui.h"
+#include <imgui.h>
 
 namespace Nova::ImGui
 {
 	ImGuiRenderLayer::ImGuiRenderLayer()
 	{
+		CreateRenderer();
+
+		App::LogCore(LogLevel::Verbose, "ImGui layer created");
+	}
+
+	ImGuiRenderLayer::~ImGuiRenderLayer()
+	{
+		m_Renderer.release();
+
+		App::LogCore(LogLevel::Verbose, "ImGui layer destroyed");
+	}
+
+	// RefCounted ----------
+	void ImGuiRenderLayer::Init()
+	{
+		Windowing::WindowingModule::Get()->OnWindowDestroyed.Connect(GetSelfRef<ImGuiRenderLayer>(), &ImGuiRenderLayer::WindowDestroyedCallback);
+	}
+	// RefCounted ----------
+
+	void ImGuiRenderLayer::BeginFrame(double deltaTime)
+	{
+		m_DeltaTime = deltaTime;
+	}
+
+	void ImGuiRenderLayer::RenderContext(Ref<Rendering::GraphicsContext> context)
+	{
+		ImGuiContext* imGuiCtx = GetImGuiContextForGraphicsContext(context);
+
+		// Don't continue if there's no ImGui context for this context
+		if (!imGuiCtx)
+			return;
+
+		::ImGui::SetCurrentContext(imGuiCtx);
+
+		// Begin a new frame in our renderer
+		m_Renderer->BeginFrame(context, m_DeltaTime);
+		::ImGui::NewFrame();
+
+		context->RenderForLayer(GetID());
+
+		::ImGui::Render();
+		m_Renderer->RenderImGuiData();
+
+		ImGuiIO& io = ::ImGui::GetIO();
+
+		// Update and Render additional Platform Windows
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+
+			::ImGui::UpdatePlatformWindows();
+			::ImGui::RenderPlatformWindowsDefault();
+
+			// ImGui may have made a different context current, so reset the current one here
+			context->MakeCurrent();
+		}
+	}
+
+	void ImGuiRenderLayer::EndFrame()
+	{ }
+
+	void ImGuiRenderLayer::CreateContextForWindow(Ref<Windowing::Window> window)
+	{
 		// Init ImGui
 		::IMGUI_CHECKVERSION();
-		::ImGui::CreateContext();
+		ImGuiContext* context = ::ImGui::CreateContext();
+		::ImGui::SetCurrentContext(context);
 
 		// Dark theming
 		::ImGui::StyleColorsDark();
@@ -22,41 +86,15 @@ namespace Nova::ImGui
 		style.WindowRounding = 0.0f;
 		style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
-		CreateRenderer();
-
-		App::LogCore(LogLevel::Verbose, "ImGui layer initialized");
-	}
-
-	ImGuiRenderLayer::~ImGuiRenderLayer()
-	{
-		m_Renderer.release();
-		::ImGui::DestroyContext();
-		App::LogCore(LogLevel::Verbose, "ImGui layer destroyed");
-	}
-
-	void ImGuiRenderLayer::BeginFrame(Ref<Rendering::GraphicsContext> currentContext, double deltaTime)
-	{
-		// Resize ImGui to fit the current graphics context
 		ImGuiIO& io = ::ImGui::GetIO();
-		io.DisplaySize = ImVec2((float)currentContext->GetWidth(), (float)currentContext->GetHeight());
-		io.DeltaTime = (float)deltaTime;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
-		// TODO: update mouse data & cursor, update gamepads (check imgui_impl_glfw)
+		m_WindowContextMap[window] = context;
 
-		// Begin a new frame in ImGui
-		m_Renderer->BeginFrame();
-		::ImGui::NewFrame();
-
-		// Tell all our listeners to do stuff related to ImGui now
-		ImGuiRenderEvent e(App::GetDeltaTime());
-		OnBeginFrame.Emit(e);
-	}
-
-	void ImGuiRenderLayer::EndFrame(Ref<Rendering::GraphicsContext> currentContext, double deltaTime)
-	{
-		// Have ImGui render the frame
-		::ImGui::Render();
-		m_Renderer->EndFrame();
+		m_Renderer->InitializeNewImGuiContext(window);
 	}
 
 	void ImGuiRenderLayer::CreateRenderer()
@@ -72,5 +110,35 @@ namespace Nova::ImGui
 			// TODO: better error handling
 			throw Exception("Unsupported rendering API");
 		}
+	}
+
+	ImGuiContext* ImGuiRenderLayer::GetImGuiContextForGraphicsContext(Ref<Rendering::GraphicsContext> context) const
+	{
+		for (auto it = m_WindowContextMap.begin(); it != m_WindowContextMap.end(); it++)
+		{
+			if (it->first->GetGraphicsContext().get() == context.get())
+			{
+				return it->second;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void ImGuiRenderLayer::WindowDestroyedCallback(Windowing::WindowDestroyedEvent& e)
+	{
+		auto it = m_WindowContextMap.find(e.Window);
+
+		if (it == m_WindowContextMap.end())
+			return;
+
+		::ImGui::SetCurrentContext(it->second);
+
+		m_Renderer->ShutdownImGuiContext(e.Window);
+
+		// Cleanup this window's context
+		::ImGui::DestroyContext(it->second);
+
+		m_WindowContextMap.erase(it);
 	}
 }

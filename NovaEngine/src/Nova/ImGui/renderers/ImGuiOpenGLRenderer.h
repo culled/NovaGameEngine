@@ -11,13 +11,15 @@ namespace Nova::ImGui
 	class NovaAPI ImGuiOpenGLRenderer : public ImGuiRenderer
 	{
 	public:
-		ImGuiOpenGLRenderer();
 		~ImGuiOpenGLRenderer();
 
 	// ImGuiRenderer ----------
 	public:
-		virtual void BeginFrame() override;
-		virtual void EndFrame() override;
+		virtual void InitializeNewImGuiContext(Ref<Windowing::Window> window) override;
+		virtual void ShutdownImGuiContext(Ref<Windowing::Window> window) override;
+
+		virtual void BeginFrame(Ref<Rendering::GraphicsContext> context, double deltaTime) override;
+		virtual void RenderImGuiData() override;
 
 	// ImGuiRenderer ----------
 	};

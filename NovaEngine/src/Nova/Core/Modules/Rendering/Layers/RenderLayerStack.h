@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderLayer.h"
-#include "Nova/Core/Modules/Rendering/GraphicsContext.h"
 
 namespace Nova::Rendering
 {
@@ -26,12 +25,19 @@ namespace Nova::Rendering
 		/// <summary>
 		/// Begins a frame for each layer in the stack
 		/// </summary>
-		void BeginFrame(Ref<GraphicsContext> currentContext, double deltaTime);
+		/// <param name="deltaTime">The time between this frame and the last frame (in seconds)</param>
+		void BeginFrame(double deltaTime);
 
 		/// <summary>
 		/// Ends a frame for each layer in the stack
 		/// </summary>
-		void EndFrame(Ref<GraphicsContext> currentContext, double deltaTime);
+		void EndFrame();
+
+		/// <summary>
+		/// Renders layers for a given GraphicsContext
+		/// </summary>
+		/// <param name="context">The context to render</param>
+		void RenderContext(Ref<GraphicsContext> context);
 
 	private:
 		/// <summary>

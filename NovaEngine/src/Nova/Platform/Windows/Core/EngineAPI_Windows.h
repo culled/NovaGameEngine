@@ -1,5 +1,3 @@
-// Holds engine-specific stuff for the Windows platform
-
 #pragma once
 
 // Windows-specific linking

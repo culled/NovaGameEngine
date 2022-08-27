@@ -3,8 +3,9 @@
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Modules/AppModuleException.h"
 #include "GLFWWindow.h"
+#include "GLFWMonitor.h"
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 namespace Nova::Windowing
 {
@@ -16,14 +17,12 @@ namespace Nova::Windowing
 		{
 			InitGLFW();
 		}
+
+		InitializeMonitors();
 	}
 
 	GLFWWindowingBackend::~GLFWWindowingBackend()
 	{
-		// Release all windows
-		m_Windows.clear();
-		m_MainWindow.reset();
-
 		if (s_GLFWInitialized)
 		{
 			TerminateGLFW();
@@ -34,48 +33,26 @@ namespace Nova::Windowing
 
 	// WindowingBackend ----------
 
-	Ref<Window> GLFWWindowingBackend::CreateAndAddWindow(const WindowCreateParams& createParams)
+	void GLFWWindowingBackend::MonitorCallback(GLFWmonitor* monitor, int eventType)
 	{
-		auto window = MakeRef<GLFWWindow>(createParams);
+		GLFWWindowingBackend* backend = static_cast<GLFWWindowingBackend*>(glfwGetMonitorUserPointer(monitor));
 
-		// If we have no current windows, make this one the main window
-		if (m_Windows.size() == 0)
+		if (eventType == GLFW_CONNECTED)
 		{
-			SetMainWindow(window);
+			backend->MonitorConnected(monitor);
 		}
-
-		m_Windows.push_back(window);
-
-		return window;
-	}
-
-	void GLFWWindowingBackend::RemoveWindow(Ref<Window> window)
-	{
-		auto it = std::find_if(m_Windows.begin(), m_Windows.end(), [window](const Ref<Window>& other) {
-			return window.get() == other.get();
-			});
-
-		if (it != m_Windows.end())
+		else if (eventType == GLFW_DISCONNECTED)
 		{
-			m_Windows.erase(it);
+			backend->MonitorDisconnected(monitor);
 		}
 	}
 
-	void GLFWWindowingBackend::SetMainWindow(Ref<Window> window)
+	Ref<Window> GLFWWindowingBackend::CreateWindow(const WindowCreateParams& createParams)
 	{
-		Ref<GLFWWindowingBackend> self = GetSelfRef<GLFWWindowingBackend>();
+		if (!s_GLFWInitialized)
+			throw Exception("GLFW has not been initialized yet!");
 
-		if (m_MainWindow)
-		{
-			m_MainWindow->OnClosing.Disconnect(self, &GLFWWindowingBackend::MainWindowClosingCallback);
-		}
-
-		m_MainWindow = window;
-
-		// Set the tree context of the main window's graphics context to the app's NodeTree
-		m_MainWindow->GetGraphicsContext()->SetNodeTreeContext(App::Get()->GetNodeTree());
-
-		m_MainWindow->OnClosing.Connect(self, &GLFWWindowingBackend::MainWindowClosingCallback);
+		return MakeRef<GLFWWindow>(createParams);
 	}
 
 	void GLFWWindowingBackend::Tick(double deltaTime)
@@ -119,5 +96,41 @@ namespace Nova::Windowing
 	{
 		// Only close the main window once the application quits
 		e.ShouldClose = App::Get()->Quit();
+	}
+
+	void GLFWWindowingBackend::InitializeMonitors()
+	{
+		int count = 0;
+		GLFWmonitor** monitors = glfwGetMonitors(&count);
+
+		for (int i = 0; i < count; i++)
+		{
+			MonitorConnected(monitors[i]);
+		}
+
+		glfwSetMonitorCallback(&GLFWWindowingBackend::MonitorCallback);
+	}
+
+	void GLFWWindowingBackend::MonitorConnected(GLFWmonitor* monitor)
+	{
+		glfwSetMonitorUserPointer(monitor, this);
+		m_Monitors.push_back(MakeRef<GLFWMonitor>(monitor));
+	}
+
+	void GLFWWindowingBackend::MonitorDisconnected(GLFWmonitor* monitor)
+	{
+		auto it = std::find_if(m_Monitors.begin(), m_Monitors.end(), [monitor](const Ref<Monitor>& other) {
+			if (Ref<GLFWMonitor> otherMonitor = dynamic_pointer_cast<GLFWMonitor>(other))
+			{
+				return otherMonitor->GetInternalMonitor() == monitor;
+			}
+
+			return false;
+		});
+
+		if (it != m_Monitors.end())
+		{
+			m_Monitors.erase(it);
+		}
 	}
 }

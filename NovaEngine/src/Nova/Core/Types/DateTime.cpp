@@ -4,9 +4,6 @@
 
 namespace Nova
 {
-	TimeSpan::TimeSpan() : TimeSpan(0)
-	{}
-
 	TimeSpan::TimeSpan(uint64_t microseconds) :
 		m_Microseconds(microseconds)
 	{}

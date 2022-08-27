@@ -19,20 +19,30 @@ namespace Nova::Rendering
     class NovaAPI RenderLayer : public RefCounted
     {
     public:
-        RenderLayer() = default;
         virtual ~RenderLayer() = default;
 
     public:
         /// <summary>
         /// Called when this layer should start rendering a frame
         /// </summary>
-        virtual void BeginFrame(Ref<GraphicsContext> currentContext, double deltaTime) = 0;
+        /// <param name="deltaTime">The time between this frame and the last (in seconds)</param>
+        virtual void BeginFrame(double deltaTime) = 0;
 
         /// <summary>
-        /// Called when this layer should finish rendering a frame
+        /// Called when this layer has ended rendering a frame
         /// </summary>
-        virtual void EndFrame(Ref<GraphicsContext> currentContext, double deltaTime) = 0;
+        virtual void EndFrame() = 0;
 
+        /// <summary>
+        /// Called when this layer should render for a given GraphicsContext
+        /// </summary>
+        /// <param name="context">The context to render</param>
+        virtual void RenderContext(Ref<GraphicsContext> context) = 0;
+
+        /// <summary>
+        /// Gets the unique ID of this render layer
+        /// </summary>
+        /// <returns>The ID of this render layer</returns>
         virtual int GetID() const = 0;
     };
 }

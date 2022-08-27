@@ -2,7 +2,7 @@
 
 #include "Nova/Core/App/App.h"
 
-#include "glad/glad.h"
+#include <glad/glad.h>
 
 namespace Nova::Rendering
 {
@@ -19,27 +19,30 @@ namespace Nova::Rendering
 	void OpenGLRenderingBackend::InitGraphicsContext(Ref<GraphicsContext> context)
 	{
 		m_GraphicsContexts.push_back(context);
-		LoadExtensionsForGraphicsContext(context);
+
+		// Only load extensions for contexts that are brand new (not shared)
+		if(!context->GetIsShared())
+			LoadExtensionsForGraphicsContext(context);
 	}
 
-	List<Ref<GraphicsContext>> OpenGLRenderingBackend::GetActiveGraphicsContexts()
+	List<Ref<GraphicsContext>> OpenGLRenderingBackend::GetGraphicsContexts()
 	{
 		List<Ref<GraphicsContext>> contexts;
 
+		// Make a list of valid contexts and erase invalid ones
 		auto it = m_GraphicsContexts.begin();
-
-		while(it != m_GraphicsContexts.end())
+		while (it != m_GraphicsContexts.end())
 		{
-			auto lockedContext = (*it).lock();
+			auto context = (*it).lock();
 
-			if (!lockedContext)
+			if (context)
 			{
-				it = m_GraphicsContexts.erase(it);
+				contexts.push_back(context);
+				it++;
 			}
 			else
 			{
-				contexts.push_back(lockedContext);
-				it++;
+				it = m_GraphicsContexts.erase(it);
 			}
 		}
 
@@ -62,6 +65,9 @@ namespace Nova::Rendering
 		// Print out some OpenGL info
 		const char* vendorStr = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
 		const char* versionStr = reinterpret_cast<const char*>(glGetString(GL_VERSION));
+
+		context->ReleaseCurrent();
+
 		App::LogCore(LogLevel::Info, "Initialized OpenGL context - Vendor: {0}, Version: {1}", vendorStr, versionStr);
 	}
 }

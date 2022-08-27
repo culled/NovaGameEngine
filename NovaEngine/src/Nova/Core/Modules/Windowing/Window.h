@@ -12,8 +12,11 @@ namespace Nova::Windowing
 	/// </summary>
 	struct NovaAPI WindowClosingEvent : public Event
 	{
+		WindowClosingEvent();
+		~WindowClosingEvent() = default;
+
 		// If set to false, the window will not close
-		bool ShouldClose = true;
+		bool ShouldClose;
 	};
 
 	/// <summary>
@@ -21,25 +24,28 @@ namespace Nova::Windowing
 	/// </summary>
 	struct NovaAPI WindowResizedEvent : public Event
 	{
-		WindowResizedEvent(uint32_t newWidth, uint32_t newHeight) :
-			NewWidth(newWidth), NewHeight(newHeight) {}
+		WindowResizedEvent(Vector2i newSize);
+		~WindowResizedEvent() = default;
 
-		// The new height of the window
-		uint32_t NewWidth;
-
-		// The new width of the window
-		uint32_t NewHeight;
+		/// The new size of the window
+		Vector2i NewSize;
 	};
 
+	/// <summary>
+	/// Struct with info for creating windows
+	/// </summary>
+	/// <param name="size">The initial size for the window</param>
+	/// <param name="title">The title for the window</param>
 	struct NovaAPI WindowCreateParams
 	{
-		WindowCreateParams(uint32_t width, uint32_t height, const string& title) :
-			InitialWidth(width), InitialHeight(height), Title(title) {}
+		WindowCreateParams(const Vector2i& size, const string& title);
+		~WindowCreateParams() = default;
 
-		uint32_t InitialWidth;
-		uint32_t InitialHeight;
+		Vector2i InitialSize;
 		string Title;
-		bool VSync = true;
+		bool VSync;
+		Vector2i InitialPosition;
+		Ref<Rendering::GraphicsContext> ShareGfxContext;
 	};
 
 	/// <summary>
@@ -52,56 +58,146 @@ namespace Nova::Windowing
 
 	public:
 		/// <summary>
-		/// Gets the current width of this window
+		/// Sets the size of this window
 		/// </summary>
-		/// <returns>The current width of this window</returns> 
-		virtual uint32_t GetWidth() const = 0;
+		/// <returns>The desired size for this window</returns> 
+		virtual void SetSize(const Vector2i& size) = 0;
 
 		/// <summary>
-		/// Gets the current height of this window
+		/// Gets the current size of this window
 		/// </summary>
-		/// <returns>The current height of this window</returns> 
-		virtual uint32_t GetHeight() const = 0;
+		/// <returns>The current size of this window</returns> 
+		virtual Vector2i GetSize() const = 0;
+
+		/// <summary>
+		/// Sets the position of this window
+		/// </summary>
+		/// <param name="position">The desired position for this window</param>
+		virtual void SetPosition(const Vector2i& position) = 0;
+
+		/// <summary>
+		/// Gets the current position of this window
+		/// </summary>
+		/// <returns>The current position of this window</returns>
+		virtual Vector2i GetPosition() const = 0;
+
+		/// <summary>
+		/// Sets the title of this window
+		/// </summary>
+		/// <param name="title">The new title for this window</param>
+		virtual void SetTitle(const string& title) = 0;
 
 		/// <summary>
 		/// Gets the current title of this window
 		/// </summary>
 		/// <returns>The current title of this window</returns> 
-		virtual const string& GetTitle() const = 0;
+		virtual string GetTitle() const = 0;
 
 		/// <summary>
 		/// Enables/disables vsync for this window
 		/// </summary>
 		/// <param name="enabled">If true, vsync will be enabled</param>
-		virtual void SetVSyncEnabled(bool enabled) = 0;
+		virtual void SetVSync(bool enabled) = 0;
 
 		/// <summary>
 		/// Gets if vsync is enabled for this window
 		/// </summary>
 		/// <returns>True if vsync is enabled for this window</returns>
-		virtual bool GetVSyncEnabled() const = 0;
+		virtual bool GetVSync() const = 0;
 
 		/// <summary>
-		/// Tells this window to close
+		/// Shows this window if it is hidden
 		/// </summary>
-		virtual void Close() = 0;
+		virtual void Show() = 0;
+
+		/// <summary>
+		/// Hides this window if it is shown
+		/// </summary>
+		virtual void Hide() = 0;
+
+		/// <summary>
+		/// Gets if this window is currently hidden
+		/// </summary>
+		/// <returns>True if this window is hidden</returns>
+		virtual bool GetIsHidden() const = 0;
+
+		/// <summary>
+		/// Focuses this window
+		/// </summary>
+		virtual void Focus() = 0;
+
+		/// <summary>
+		/// Gets if this window is currently focused
+		/// </summary>
+		/// <returns>True if this window is focused</returns>
+		virtual bool GetIsFocused() const = 0;
+
+		/// <summary>
+		/// Gets if this window is minimized
+		/// </summary>
+		/// <returns>True if this window is minimized</returns>
+		virtual bool GetIsMinimized() const = 0;
+		
+		/// <summary>
+		/// Sets this window's opacity (if it is supported)
+		/// </summary>
+		/// <param name="opacity">The new opacity</param>
+		virtual void SetOpacity(double opacity) = 0;
+
+		/// <summary>
+		/// Gets this window's opacity
+		/// </summary>
+		/// <returns>This window's opacity</returns>
+		virtual double GetOpacity() const = 0;
 
 		/// <summary>
 		/// Gets this window's graphics context
 		/// </summary>
 		/// <returns>This window's graphics context</returns>
-		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() = 0;
+		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() const = 0;
 
-		virtual void* GetNativeWindow() = 0;
+		/// <summary>
+		/// Gets the backend-specific window handle
+		/// </summary>
+		/// <returns>The backend-specific window handle</returns>
+		virtual void* GetBackendWindowHandle() const = 0;
+
+		/// <summary>
+		/// Gets the platform-specific window handle
+		/// </summary>
+		/// <returns>The platform-specific window handle</returns>
+		virtual void* GetPlatformWindowHandle() const = 0;
+
+		/// <summary>
+		/// Tells this window to close
+		/// </summary>
+		/// <param name="forceClosed">If true, this window will still close even if a listener in the OnClosing event sets ShouldClose to false</param>
+		virtual void Close(bool forceClosed = false) = 0;
+
+	protected:
+		/// <summary>
+		/// Sets if this window is the main window of the application
+		/// </summary>
+		/// <param name="isMain">True if this window should act as the main window for the application</param>
+		virtual void SetMainWindow(bool isMain) = 0;
 
 	public:
+		/// <summary>
 		/// Invoked when this window is trying to close
+		/// </summary>
 		EventSource<WindowClosingEvent> OnClosing;
 
-		/// Invoked when this window is closed
+		/// <summary>
+		/// Invoked when this window has been closed
+		/// </summary>
 		EventSource<Event> OnClosed;
 
+		/// <summary>
 		/// Invoked when this window is resized
+		/// </summary>
 		EventSource<WindowResizedEvent> OnResized;
+
+	protected:
+		friend class WindowingModule;
 	};
 }

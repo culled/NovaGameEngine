@@ -2,6 +2,7 @@
 
 #include "Nova/Core/Engine.h"
 #include "Nova/Core/Modules/Rendering/RenderingBackend.h"
+#include "Nova/Core/Modules/Rendering/GraphicsContext.h"
 
 namespace Nova::Rendering
 {
@@ -18,7 +19,7 @@ namespace Nova::Rendering
 	public:
 		virtual RenderingBackendAPI GetAPI() const override { return RenderingBackendAPI::OpenGL; }
 		virtual void InitGraphicsContext(Ref<GraphicsContext> context) override;
-		virtual List<Ref<GraphicsContext>> GetActiveGraphicsContexts() override;
+		virtual List<Ref<GraphicsContext>> GetGraphicsContexts() override;
 		virtual void LoadExtensionsForGraphicsContext(Ref<GraphicsContext> context) override;
 
 	// RenderingBackend ----------

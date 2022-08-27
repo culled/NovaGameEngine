@@ -18,7 +18,8 @@ public:
 
 	void OnQuitting(Nova::AppQuittingEvent& e);
 
-	void OnImGuiDraw(Nova::ImGui::ImGuiRenderEvent& e);
+	void OnImGuiLayerRender(Nova::Event& e);
+	void OnImGuiLayerRenderSecondWindow(Nova::Event& e);
 };
 
 // Define this as the application class that will be created for the lifetime of the app

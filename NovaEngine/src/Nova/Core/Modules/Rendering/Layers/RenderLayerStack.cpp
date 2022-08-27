@@ -20,19 +20,27 @@ namespace Nova::Rendering
 		}
 	}
 
-	void RenderLayerStack::BeginFrame(Ref<GraphicsContext> currentContext, double deltaTime)
+	void RenderLayerStack::BeginFrame(double deltaTime)
 	{
 		for (const auto& layer : m_Layers)
 		{
-			layer->BeginFrame(currentContext, deltaTime);
+			layer->BeginFrame(deltaTime);
 		}
 	}
 
-	void RenderLayerStack::EndFrame(Ref<GraphicsContext> currentContext, double deltaTime)
+	void RenderLayerStack::EndFrame()
 	{
 		for (const auto& layer : m_Layers)
 		{
-			layer->EndFrame(currentContext, deltaTime);
+			layer->EndFrame();
+		}
+	}
+
+	void RenderLayerStack::RenderContext(Ref<GraphicsContext> context)
+	{
+		for (const auto& layer : m_Layers)
+		{
+			layer->RenderContext(context);
 		}
 	}
 }

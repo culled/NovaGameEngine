@@ -4,19 +4,10 @@
 #include "Nova/Core/Modules/Windowing/Window.h"
 #include "GLFWGraphicsContext.h"
 
-#include "GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 namespace Nova::Windowing
 {
-	// Wrapper to add a destructor to the GLFWwindow type
-	// https://stackoverflow.com/questions/35793672/use-unique-ptr-with-glfwwindow
-	struct NovaAPI DestroyGLFWwindow {
-		void operator()(GLFWwindow* ptr)
-		{
-			glfwDestroyWindow(ptr);
-		}
-	};
-
 	/// <summary>
 	/// A GLFW implementation of a window
 	/// </summary>
@@ -33,17 +24,39 @@ namespace Nova::Windowing
 
 	// Window ----------
 	public:
-		virtual uint32_t GetWidth() const override { return m_Width; }
-		virtual uint32_t GetHeight() const override { return m_Height; }
-		virtual const string& GetTitle() const override { return m_Title; }
+		virtual void SetSize(const Vector2i& size) override;
+		virtual Vector2i GetSize() const override;
 
-		virtual void SetVSyncEnabled(bool enabled) override;
-		virtual bool GetVSyncEnabled() const override { return m_VSync; }
+		virtual void SetPosition(const Vector2i& position) override;
+		virtual Vector2i GetPosition() const override;
 
-		virtual void Close() override;
+		virtual void SetTitle(const string& title) override;
+		virtual string GetTitle() const override;
 
-		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() override { return m_GraphicsContext; }
-		virtual void* GetNativeWindow() { return m_InternalWindow.get(); }
+		virtual void SetVSync(bool enabled) override;
+		virtual bool GetVSync() const override { return m_VSync; }
+
+		virtual void Show() override;
+		virtual void Hide() override;
+		virtual bool GetIsHidden() const override;
+
+		virtual void Focus() override;
+		virtual bool GetIsFocused() const override;
+
+		virtual bool GetIsMinimized() const override;
+
+		virtual void SetOpacity(double opacity) override;
+		virtual double GetOpacity() const override;
+
+		virtual Ref<Rendering::GraphicsContext> GetGraphicsContext() const override { return m_GraphicsContext; }
+
+		virtual void* GetBackendWindowHandle() const override { return m_InternalWindowPtr; }
+		virtual void* GetPlatformWindowHandle() const override;
+
+		virtual void Close(bool forceClosed = false) override;
+
+	protected:
+		virtual void SetMainWindow(bool isMain) override { m_IsMainWindow = isMain; }
 
 	// Window ----------
 
@@ -62,25 +75,27 @@ namespace Nova::Windowing
 		/// <summary>
 		/// Creates the internal GLFW window
 		/// </summary>
-		void CreateInternalWindow();
+		void CreateInternalWindow(const WindowCreateParams& createParams);
 
 	private:
-		/// The width of this window
-		uint32_t m_Width;
-
-		/// The height of this window
-		uint32_t m_Height;
-
-		/// The title of this window
-		string m_Title;
-
+		/// <summary>
 		/// If vsync is enabled for this window
+		/// </summary>
 		bool m_VSync;
 
-		/// Pointer the the GLFWwindow object
-		std::unique_ptr<GLFWwindow, DestroyGLFWwindow> m_InternalWindow;
+		/// <summary>
+		/// If this window is the main one for the application
+		/// </summary>
+		bool m_IsMainWindow = false;
 
+		/// <summary
+		/// Pointer the the GLFWwindow object
+		/// </summary>
+		GLFWwindow* m_InternalWindowPtr;
+
+		/// <summary>
 		/// This window's graphics context
-		Ref<GLFWGraphicsContext> m_GraphicsContext;
+		/// </summary>
+		Ref<Rendering::GraphicsContext> m_GraphicsContext;
 	};
 }

@@ -55,7 +55,16 @@ namespace Nova::Rendering
 		/// <returns>The current rendering backend</returns>
 		Ref<RenderingBackend> GetBackend() { return m_RenderingBackend; }
 
-		void AppendRenderLayer(Ref<RenderLayer> layer);
+		/// <summary>
+		/// Adds a RenderLayer to the stack of rendered layers
+		/// </summary>
+		/// <param name="layer">The layer to add</param>
+		void AddRenderLayer(Ref<RenderLayer> layer);
+
+		/// <summary>
+		/// Removes the given RenderLayer from the stack of rendered layers
+		/// </summary>
+		/// <param name="layer">The layer to remove</param>
 		void RemoveRenderLayer(Ref<RenderLayer> layer);
 
 	private:
@@ -66,7 +75,9 @@ namespace Nova::Rendering
 		void CreateBackend(RenderingBackendAPI backendAPI);
 
 	private:
-		/// The rendering backend this RenderModule is using
+		/// <summary>
+		/// This module's rendering backend
+		/// </summary>
 		Ref<RenderingBackend> m_RenderingBackend;
 
 		/// <summary>
