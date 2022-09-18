@@ -1,21 +1,29 @@
 #include "ExampleApp.h"
-#include <Nova/Core/Logging/ConsoleLogSink.h>
 
-#include <Nova/Core/Modules/Rendering/RenderModule.h>
-#include <Nova/Core/Modules/Windowing/WindowingModule.h>
-#include <Nova/ImGui/ImGuiRenderLayer.h>
-#include <imgui.h>
+#include <Nova/Services/Windowing/WindowingService.h>
+
+//#include <Nova/Core/Modules/Rendering/RenderModule.h>
+//#include <Nova/Core/Modules/Windowing/WindowingModule.h>
+//#include <Nova/ImGui/ImGuiRenderLayer.h>
+//#include <imgui.h>
 
 ExampleApp::ExampleApp(const Nova::List<Nova::string>& args) : App("Example App")
 {
-	CreateDefaultLogSinks(Nova::LogLevel::Verbose, Nova::LogLevel::Verbose);
-
 	Log(Nova::LogLevel::Verbose, "ExampleApp created");
+	//Nova::Engine::Get()->SetTargetTickrate(2);
 
 	OnAppQuitting.Connect(this, &ExampleApp::OnQuitting);
 
+	auto windowService = Nova::Engine::Get()->CreateService<Nova::Windowing::WindowingService > (Nova::Windowing::WindowingAPI::SDL);
+
+	auto window = windowService->CreateWindow(Nova::Windowing::WindowCreateParams(Nova::Vector2i(640, 480), "Example App"));
+	window->Show();
+
+	auto window2 = windowService->CreateWindow(Nova::Windowing::WindowCreateParams(Nova::Vector2i(640, 480), "Example App 2"));
+	window2->Show();
+
 	// Setup our rendering
-	auto renderer = CreateAndAddModule<Nova::Rendering::RenderModule>(0, Nova::Rendering::RenderingBackendAPI::OpenGL);
+	/*auto renderer = CreateAndAddModule<Nova::Rendering::RenderModule>(0, Nova::Rendering::RenderingBackendAPI::OpenGL);
 
 	// Setup our windowing
 	auto windowing = CreateAndAddModule<Nova::Windowing::WindowingModule>(0, Nova::Windowing::WindowingAPI::GLFW);
@@ -38,7 +46,7 @@ ExampleApp::ExampleApp(const Nova::List<Nova::string>& args) : App("Example App"
 	auto secondWindow = windowing->CreateWindow(createSecondParams).lock();
 	
 	secondWindow->GetGraphicsContext()->AddLayerRenderingListener((int)Nova::Rendering::DefaultRenderLayerIDs::ImGui, this, &ExampleApp::OnImGuiLayerRenderSecondWindow);
-	imGuiLayer->CreateContextForWindow(secondWindow);
+	imGuiLayer->CreateContextForWindow(secondWindow);*/
 }
 
 ExampleApp::~ExampleApp()
@@ -46,12 +54,20 @@ ExampleApp::~ExampleApp()
 	Log(Nova::LogLevel::Verbose, "ExampleApp destroyed");
 }
 
+void ExampleApp::OnTreeTick(Nova::TickEvent& e)
+{
+	Log(Nova::LogLevel::Info, "Tick!");
+
+	if(Nova::Engine::Get()->GetRunningTime() > Nova::TimeSpan::FromSeconds(5.0))
+		Quit();
+}
+
 void ExampleApp::OnQuitting(Nova::AppQuittingEvent& e)
 {
 	Log(Nova::LogLevel::Info, "I'm quitting!");
 }
 
-void ExampleApp::OnImGuiLayerRender(Nova::Event& e)
+/*void ExampleApp::OnImGuiLayerRender(Nova::Event& e)
 {
 	bool open = true;
 	ImGui::ShowDemoWindow(&open);
@@ -68,4 +84,4 @@ void ExampleApp::OnImGuiLayerRenderSecondWindow(Nova::Event& e)
 {
 	bool open = true;
 	ImGui::ShowAboutWindow(&open);
-}
+}*/

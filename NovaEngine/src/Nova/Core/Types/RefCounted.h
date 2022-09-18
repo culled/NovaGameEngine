@@ -23,7 +23,7 @@ namespace Nova
 	/// An exclusive reference to an object
 	/// </summary>
 	template<typename T>
-	using Exclusive = std::unique_ptr<T>;
+	using ManagedPtr = std::unique_ptr<T>;
 
 	/// <summary>
 	/// Creates a managed object that cannot be shared
@@ -31,7 +31,7 @@ namespace Nova
 	/// <param name="...args">The arguments to pass to the class's constructor</param>
 	/// <returns>The managed object</returns>
 	template<typename T, typename ... Args>
-	inline Exclusive<T> MakeExclusive(Args&& ...args) { return std::make_unique<T>(std::forward<Args>(args)...); }
+	inline ManagedPtr<T> MakeManagedPtr(Args&& ...args) { return std::move(std::make_unique<T>(std::forward<Args>(args)...)); }
 
 	/// <summary>
 	/// Base class for all reference-counted objects

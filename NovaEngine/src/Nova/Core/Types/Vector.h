@@ -32,6 +32,7 @@ namespace Nova
 		int X, Y;
 
 		static const Vector2i ZERO;
+		static const Vector2i MAX;
 
 		bool operator==(const Vector2i& lhs) const;
 	};

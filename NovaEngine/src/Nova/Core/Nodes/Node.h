@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
 #include "Nova/Core/Events/TickListener.h"
+#include "Nova/Core/Types/String.h"
+#include "Nova/Core/Types/List.h"
 
 namespace Nova
 {
@@ -11,7 +13,7 @@ namespace Nova
 	/// <summary>
 	/// Base class for all nodes that live in a NodeTree
 	/// </summary>
-	class NovaAPI Node : public TickListener
+	class NovaAPI Node : public RefCounted
 	{
 	public:
 		/// <summary>
@@ -22,20 +24,13 @@ namespace Nova
 
 		virtual ~Node() = default;
 
-	// TickListener ----------
-	protected:
-		virtual int GetTickOrder() const override { return m_TickOrder; }
-
-		virtual void Tick(double deltaTime) override {}
-	// TickListener ----------
-
 	public:
 		/// <summary>
 		/// Comparator function to compare tick priorities between 2 nodes
 		/// </summary>
 		/// <param name="lhs">The first node</param>
 		/// <param name="rhs">The second node</param>
-		static bool TickPriorityComparator(const Ref<Node>& lhs, const Ref<Node>& rhs);
+		//static bool TickPriorityComparator(const Ref<Node>& lhs, const Ref<Node>& rhs);
 	
 	public:
 		/// <summary>
@@ -60,22 +55,22 @@ namespace Nova
 		/// Sets the owning tree for this node
 		/// </summary>
 		/// <param name="tree">The owning tree for this node</param>
-		void SetTree(WeakRef<NodeTree> tree);
+		void SetTree(const WeakRef<NodeTree>& tree);
 
 		/// <summary>
 		/// Adds a node as a child of this node
 		/// </summary>
 		/// <param name="node">The node to add as a child of this node</param>
-		void AddChild(Ref<Node> node);
+		void AddChild(const Ref<Node>& node);
 
 		/// <summary>
 		/// Removes a node from this node's list of children
 		/// </summary>
 		/// <param name="node">The node to unparent</param>
-		void RemoveChild(Ref<Node> node);
+		void RemoveChild(const Ref<Node>& node);
 
 	private:
-		void SetParent(WeakRef<Node> node);
+		void SetParent(const WeakRef<Node>& node);
 
 	private:
 		/// The name of this node

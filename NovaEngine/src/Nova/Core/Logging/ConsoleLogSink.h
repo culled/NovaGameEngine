@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
 #include "Nova/Core/Types/String.h"
 #include "LogSink.h"

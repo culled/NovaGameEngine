@@ -2,6 +2,7 @@
 
 #include "Nova/Core/App/App.h"
 #include "Nova/Core/Types/DateTime.h"
+#include "Nova/Core/Engine/Engine.h"
 
 #include <format>
 
@@ -11,7 +12,7 @@ namespace Nova
 		m_Name(name)
 	{}
 
-	void Logger::AddSink(Ref<LogSink> sink)
+	void Logger::AddSink(const Ref<LogSink>& sink)
 	{
 		m_Sinks.push_back(sink);
 	}
@@ -20,7 +21,7 @@ namespace Nova
 	{
 		// TODO: support message as a format (provide variable number of arguments)
 
-		TimeSpan currentTime = App::GetRunningTime();
+		TimeSpan currentTime = Engine::Get()->GetRunningTime();
 
 		// Format the message
 		string logMessage = std::format("[{0:02d}:{1:02d}.{2:04d} - {3}] {4}: {5}", 

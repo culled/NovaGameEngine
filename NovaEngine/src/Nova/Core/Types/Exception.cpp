@@ -2,7 +2,11 @@
 
 namespace Nova
 {
-	Exception GetException()
+	Exception::Exception(const string& message) : 
+		std::exception(message.c_str())
+	{}
+
+	Exception Exception::GetException()
 	{
 		try
 		{

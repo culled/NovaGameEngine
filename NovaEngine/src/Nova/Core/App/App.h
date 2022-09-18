@@ -2,74 +2,76 @@
 
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
-#include "Nova/Core/Modules/AppModule.h"
-#include "Nova/Core/Modules/AppModuleException.h"
+#include "Nova/Core/Types/RefCounted.h"
 #include "Nova/Core/Events/Event.h"
 #include "Nova/Core/Events/EventSource.h"
-#include "Nova/Core/Types/DateTime.h"
 #include "Nova/Core/Logging/Logger.h"
 #include "Nova/Core/Nodes/NodeTree.h"
-#include "MainLoop.h"
+#include "Nova/Core/Events/Event.h"
+#include "Nova/Core/Engine/AppExitCode.h"
 
 #include <type_traits>
 
 namespace Nova
 {
+	/// <summary>
+	/// Event for when the app is requested to quit
+	/// </summary>
 	struct NovaAPI AppQuittingEvent : public Event
 	{
 		/// <summary>
-		/// Gets/sets if the app should go through with the quit
+		/// Constructs an AppQuittingEvent
 		/// </summary>
-		bool ShouldQuit = true;
+		/// <param name="forceQuitting">If true, then the app will quit regardless if Cancel is true</param>
+		AppQuittingEvent(bool forceQuitting);
+
+		/// <summary>
+		/// Gets if the app will quit regardless if ShouldQuit is true
+		/// </summary>
+		const bool ForceQuitting;
+
+		/// <summary>
+		/// If set to true, the app will cancel its quit (unless ForceQuitting is true)
+		/// </summary>
+		bool Cancel;
 	};
 
+	/// <summary>
+	/// Base class for an application that is run by the engine
+	/// </summary>
 	class NovaAPI App
 	{
-	public:
-		/// <summary>
-		/// Possible exit codes for the app
-		/// </summary>
-		enum class AppExitCode
-		{
-			// The app exited normally
-			SUCCESS = 0,
-
-			// The app exited with an unhandled exception
-			UNHANDLED_EXCEPTION = 1
-		};
-
 	public:
 		/// <summary>
 		/// Constructor for this application
 		/// </summary>
 		/// <param name="name">The name for this application</param>
 		App(const string& name);
-
-		/// <summary>
-		/// The destructor for this application
-		/// </summary>
 		virtual ~App();
 
 	public:
 		/// <summary>
-		/// Gets the duration of time this application has been running
+		/// Gets the instance of the app
 		/// </summary>
-		/// <returns>A TimeSpan that represents the amount of time this app has been running</returns>
-		static TimeSpan GetRunningTime();
+		/// <returns>The app instance</returns>
+		static App* Get() { return s_Instance; }
 
+	private:
 		/// <summary>
-		/// Gets the time that this application was started
+		/// The instance of the application
 		/// </summary>
-		/// <returns>A TimeSpan that represents the time when this app was started</returns>
-		static TimeSpan GetStartTime();
+		static App* s_Instance;
 
+	public:
 		/// <summary>
-		/// Gets the time between the last tick and the current tick
+		/// Attempts to quit the application
 		/// </summary>
-		/// <returns>The time between ticks (in seconds)</returns>
-		static double GetDeltaTime();
+		/// <param name="exitCode">The exit code to exit with if successful</param>
+		/// <param name="forceQuit">If true, the application will quit regardless if the quit is cancelled</param>
+		/// <returns>True if the app will quit</returns>
+		virtual bool Quit(AppExitCode exitCode = AppExitCode::SUCCESS, bool forceQuit = false);
 
 		/// <summary>
 		/// Logs to the app's logger
@@ -77,78 +79,10 @@ namespace Nova
 		/// <param name="level">The log level of the message</param>
 		/// <param name="formatMessage">The message to log</param>
 		/// <param name="values">Values to be integrated into the formatted message</param>
-		//static void Log(const string& message, LogLevel level = LogLevel::Info);
 		template <typename ... Args>
-		static void Log(LogLevel level, const string& formatMessage, Args&& ... values)
+		void Log(LogLevel level, const string& formatMessage, Args&& ... values)
 		{
-			Get()->m_AppLogger->WriteFormatted(level, formatMessage, std::forward<Args>(values)...);
-		}
-
-		/// <summary>
-		/// Logs to the core engine logger
-		/// </summary>
-		/// <param name="level">The log level of the message</param>
-		/// <param name="formatMessage">The message to log</param>
-		/// <param name="values">Values to be integrated into the formatted message</param>
-		template <typename ... Args>
-		static void LogCore(LogLevel level, const string& formatMessage, Args&& ... values)
-		{
-			Get()->m_CoreLogger->WriteFormatted(level, formatMessage, std::forward<Args>(values)...);
-		}
-
-		/// <summary>
-		/// Gets the instance of the app
-		/// </summary>
-		/// <returns>The app instance</returns>
-		static App* Get() { return sp_AppInstance; }
-
-	private:
-		// The instance of the application
-		static App* sp_AppInstance;
-
-	public:
-		/// <summary>
-		/// The function that will run all the tasks for this application. Once this returns the app is shutdown
-		/// </summary>
-		virtual AppExitCode Run();
-
-		/// <summary>
-		/// Attempts to quit the application
-		/// </summary>
-		/// <param name="exitCode">The exit code to exit with if successful</param>
-		virtual bool Quit(AppExitCode exitCode = AppExitCode::SUCCESS);
-
-		/// <summary>
-		/// Loads an AppModule into this application
-		/// </summary>
-		/// <typeparam name="T">The type of module to load</typeparam>
-		/// <param name="executionOffset">A user-defined offset to apply on top of the module's default offset</param>
-		/// <param name="...args">Any extra parameters to pass to the constructor of the module class</param>
-		template<class T, typename ... Args>
-		Ref<T> CreateAndAddModule(int executionOffset = 0, Args&& ...args)
-		{
-			// Only accept classes that derive from AppModule
-			static_assert(std::is_base_of<AppModule, T>::value, "The class must inherit from AppModule");
-
-			Ref<T> appModule = nullptr;
-
-			try
-			{
-				// Create the app module and pass the given arguments
-				appModule = MakeRef<T>(executionOffset, std::forward<Args>(args)...);
-			}
-			catch (const AppModuleInitException& ex)
-			{
-				string message = FormatString("Unable to load AppModule \"{0}\": {1}", typeid(T).name(), ex.what());
-				LogCore(LogLevel::Error, message);
-				throw std::runtime_error(message);
-			}
-
-			// Add the created module to our list of modules and register it to the main loop
-			m_AppModules.push_back(appModule);
-			m_MainLoop->AddTickListener(appModule);
-
-			return appModule;
+			m_Logger->WriteFormatted(level, formatMessage, std::forward<Args>(values)...);
 		}
 
 		/// <summary>
@@ -163,25 +97,16 @@ namespace Nova
 		/// <returns>The app's node tree</returns>
 		Ref<NodeTree> GetNodeTree() const { return m_NodeTree; }
 
-	protected:
+	private:
 		/// <summary>
-		/// Creates ConsoleLogSinks for the core and app loggers
+		/// Creates the app singleton
 		/// </summary>
-		/// <param name="coreLevel">The minimum level to write core log messages</param>
-		/// <param name="appLevel">The minimum level to write app log messages</param>
-		void CreateDefaultLogSinks(LogLevel coreLevel, LogLevel appLevel);
+		void CreateSingleton();
 
 		/// <summary>
-		/// Creates the MainLoop for the application. By default returns an instance of the MainLoop class
+		/// Creates the NodeTree for this application
 		/// </summary>
-		/// <returns>An instance of a MainLoop</returns>
-		virtual Exclusive<MainLoop> CreateMainLoop();
-
-		/// <summary>
-		/// Sets the exit code for the app that will be returned when it quits
-		/// </summary>
-		/// <param name="exitCode">The exit code</param>
-		void SetExitCode(AppExitCode exitCode) { m_ExitCode = exitCode; }
+		void CreateNodeTree();
 
 	public:
 		/// <summary>
@@ -189,38 +114,24 @@ namespace Nova
 		/// </summary>
 		EventSource<AppQuittingEvent> OnAppQuitting;
 
-		/// <summary>
-		/// Event that is invoked when the app is quitting
-		/// </summary>
-		EventSource<Event> OnAppQuit;
-
 	protected:
-		/// Gets the name of the application
-		const string m_Name;
-
-		/// Gets the time the app was started
-		const TimeSpan m_StartTime; 
+		/// <summary>
+		/// Gets the name of this application
+		/// </summary>
+		const string m_Name; 
 
 	private:
-		/// The code the app will exit with
-		AppExitCode m_ExitCode;
-
-		/// The logger for the core of Nova (non-user logs)
-		Exclusive<Logger> m_CoreLogger;
-
+		/// <summary>
 		/// The logger for the app
-		Exclusive<Logger> m_AppLogger;
+		/// </summary>
+		ManagedPtr<Logger> m_Logger;
 
-		/// The main loop of the app
-		Exclusive<MainLoop> m_MainLoop;
-
-		/// A list of all active modules for the app
-		List<Ref<AppModule>> m_AppModules;
-
-		/// The main node tree for the app
+		/// <summary>
+		/// The main node tree of the application
+		/// </summary>
 		Ref<NodeTree> m_NodeTree;
 	};
 }
 
 /// Macro to create an App factory that returns an instance of the client's app class
-#define MainApp(AppClass) Nova::App* CreateApp(const Nova::List<Nova::string>& args) { return new AppClass(args); }
+#define MainApp(AppClass) Nova::App* CreateAppInstance(const Nova::List<Nova::string>& args) { return new AppClass(args); }

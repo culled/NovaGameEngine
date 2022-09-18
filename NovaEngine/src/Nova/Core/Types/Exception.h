@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Nova/Core/EngineAPI.h"
+#include "Nova/Core/Types/String.h"
 #include <exception>
 
 namespace Nova
@@ -7,7 +9,13 @@ namespace Nova
 	/// <summary>
 	/// Base exception type
 	/// </summary>
-	using Exception = std::exception;
+	class NovaAPI Exception : public std::exception
+	{
+	public:
+		Exception(const string& message);
+		virtual ~Exception() = default;
 
-	Exception GetException();
+	public:
+		static Exception GetException();
+	};
 }

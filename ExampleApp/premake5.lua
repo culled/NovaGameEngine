@@ -4,13 +4,13 @@ project "ExampleApp"
     cppdialect "C++20"
     staticruntime "on"
 
-    targetdir "%{OutputDir.bin}/%{prj.name}"
-    objdir "%{OutputDir.obj}/%{prj.name}"
+    targetdir "%{OutputDir.bin}%{prj.name}"
+    objdir "%{OutputDir.obj}%{prj.name}"
 
     files
     {
-        "App/**.h",
-        "App/**.cpp",
+        "App\\**.h",
+        "App\\**.cpp",
     }
 
     includedirs
@@ -23,12 +23,18 @@ project "ExampleApp"
     {
         "NovaEngine",
         "ImGui",
+        "SDL2.lib",
+    }
+
+    libdirs
+    {
+        "%{LibraryDir.sdl}",
     }
 
     filter "system:windows"
-        links
+        postbuildcommands
         {
-            "opengl32.lib"
+            "xcopy /D /Y ..\\NovaEngine\\vendor\\SDL2\\lib\\x64\\SDL2.dll ..\\bin\\" .. outputdir .. "%{prj.name}\\SDL2.dll"
         }
 
     filter "configurations:Debug"

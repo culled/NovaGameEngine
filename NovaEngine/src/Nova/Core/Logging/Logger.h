@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
 #include "Nova/Core/Types/List.h"
 #include "Nova/Core/Types/String.h"
@@ -42,7 +42,7 @@ namespace Nova
 		/// Adds a sink to this log
 		/// </summary>
 		/// <param name="sink">The sink to add</param>
-		void AddSink(Ref<LogSink> sink);
+		void AddSink(const Ref<LogSink>& sink);
 
 		/// <summary>
 		/// Writes to this log
@@ -69,10 +69,14 @@ namespace Nova
 		const string& GetName() const { return m_Name; }
 
 	private:
+		/// <summary>
 		/// The name of this logger
+		/// </summary>
 		const string m_Name;
 
+		/// <summary>
 		/// The list of sinks this logger will write to
+		/// </summary>
 		List<Ref<LogSink>> m_Sinks;
 	};
 }

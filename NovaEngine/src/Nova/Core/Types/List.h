@@ -4,6 +4,8 @@
 
 namespace Nova
 {
+	// TODO: create our own List class for stable API
+
 	/// <summary>
 	/// A resizable array
 	/// </summary>

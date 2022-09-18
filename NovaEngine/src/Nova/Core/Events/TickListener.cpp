@@ -17,7 +17,7 @@ namespace Nova
 		// Tick if enough time has passed
 		if (m_TimeSinceLastTick >= m_TickPeriod)
 		{
-			Tick(m_TimeSinceLastTick);
+			m_TickFunc(m_TimeSinceLastTick);
 			m_TimeSinceLastTick = 0.0;
 		}
 	}

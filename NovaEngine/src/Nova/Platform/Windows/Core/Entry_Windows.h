@@ -7,7 +7,7 @@
 
 namespace Nova
 {
-	extern App::AppExitCode Entry(const Nova::List<Nova::string>& args);
+	extern AppExitCode Entry(const Nova::List<Nova::string>& args);
 }
 
 int main(int argc, char** argv)

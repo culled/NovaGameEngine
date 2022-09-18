@@ -1,5 +1,7 @@
 #include "Vector.h"
 
+#include <climits>
+
 namespace Nova
 {
 	Vector2::Vector2() :
@@ -21,6 +23,7 @@ namespace Nova
 	{}
 
 	const Vector2i Vector2i::ZERO = Vector2i(0, 0);
+	const Vector2i Vector2i::MAX = Vector2i(INT_MAX, INT_MAX);
 
 	bool Vector2i::operator==(const Vector2i& lhs) const
 	{

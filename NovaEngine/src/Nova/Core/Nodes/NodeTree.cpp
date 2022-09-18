@@ -7,6 +7,11 @@
 
 namespace Nova
 {
+	TickEvent::TickEvent(double deltaTime) :
+		DeltaTime(deltaTime)
+	{}
+
+
 	// RefCounted ----------
 	void NodeTree::Init()
 	{
@@ -16,16 +21,16 @@ namespace Nova
 
 	// RefCounted ----------
 
-	void NodeTree::TickNode(Ref<Node> node, double deltaTime)
+	void NodeTree::TickNode(const Ref<Node>& node, double deltaTime)
 	{
-		node->Tick(deltaTime);
+		//node->Tick(deltaTime);
 
 		if (node->m_Children.size() > 0)
 		{
 			List<Ref<Node>> childNodes(node->m_Children);
-			std::sort(childNodes.begin(), childNodes.end(), Node::TickPriorityComparator);
+			//std::sort(childNodes.begin(), childNodes.end(), Node::TickPriorityComparator);
 		
-			for (Ref<Node> child : childNodes)
+			for (const Ref<Node>& child : childNodes)
 			{
 				TickNode(child, deltaTime);
 			}
@@ -33,10 +38,14 @@ namespace Nova
 	}
 
 	// TickListener ----------
-	void NodeTree::Tick(double deltaTime)
-	{
-		TickNode(m_RootNode, deltaTime);
-	}
+	//void NodeTree::Tick(double deltaTime)
+	//{
+	//	OnPreTreeTick.EmitAnonymous(deltaTime);
+	//
+	//	TickNode(m_RootNode, deltaTime);
+	//
+	//	OnPostTreeTick.EmitAnonymous(deltaTime);
+	//}
 
 	// TickListener ----------
 

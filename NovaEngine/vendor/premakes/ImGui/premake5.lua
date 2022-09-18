@@ -4,8 +4,8 @@ project "ImGui"
     language "C++"
     staticruntime "on"
 
-    targetdir "%{OutputDir.bin}/%{prj.name}"
-    objdir "%{OutputDir.obj}/%{prj.name}"
+    targetdir "%{OutputDir.bin}%{prj.name}"
+    objdir "%{OutputDir.obj}%{prj.name}"
 
     files
     {
@@ -20,21 +20,11 @@ project "ImGui"
         "../../ImGui/imstb_rectpack.h",
         "../../ImGui/imstb_textedit.h",
         "../../ImGui/imstb_truetype.h",
-        "../../ImGui/backends/imgui_impl_opengl3.h",
-        "../../ImGui/backends/imgui_impl_opengl3.cpp",
-        "../../ImGui/backends/imgui_impl_glfw.h",
-        "../../ImGui/backends/imgui_impl_glfw.cpp",
     }
 
     includedirs
     {
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.glfw}",
-    }
-
-    defines
-    {
-        "IMGUI_IMPL_OPENGL_LOADER_GLAD",
     }
 
     filter "system:windows"

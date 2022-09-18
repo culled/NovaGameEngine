@@ -5,6 +5,8 @@
 
 namespace Nova
 {
+	// TODO: create our own string class for stable API
+
 	/// <summary>
 	/// Represents a string of characters
 	/// </summary>

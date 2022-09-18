@@ -1,81 +1,43 @@
 #include "App.h"
 
+#include "Nova/Core/Engine/Engine.h"
 #include "Nova/Core/Logging/ConsoleLogSink.h"
+#include "AppExceptions.h"
 
 namespace Nova
 {
+	AppQuittingEvent::AppQuittingEvent(bool forceQuitting) :
+		ForceQuitting(forceQuitting), Cancel(false)
+	{}
+
 	App::App(const string& name) :
-		m_Name(name), m_StartTime(TimeSpan::Now()), m_ExitCode(AppExitCode::SUCCESS)
+		m_Name(name), m_Logger(new Logger(name))
 	{
-		sp_AppInstance = this;
+		m_Logger->CreateSink<ConsoleLogSink>();
 
-		// Create our default logs
-		m_CoreLogger = MakeExclusive<Logger>("Nova");
-		m_AppLogger = MakeExclusive<Logger>(name);
-
-		// Create the main application loop
-		m_MainLoop = CreateMainLoop();
-
-		// Create the main node tree and add it to the loop
-		m_NodeTree = MakeRef<NodeTree>();
-		m_MainLoop->AddTickListener(m_NodeTree);
+		CreateSingleton();
+		CreateNodeTree();
 	}
 
 	App::~App()
 	{
-		// Release all modules
-		m_AppModules.clear();
+		// Cleanup the NodeTree
+		m_NodeTree.reset();
+
+		Log(LogLevel::Verbose, "App destroyed");
 	}
 
-	TimeSpan App::GetRunningTime()
+	App* App::s_Instance = nullptr;
+
+	bool App::Quit(AppExitCode exitCode, bool forceQuit)
 	{
-		return TimeSpan::Now() - GetStartTime();
-	}
-
-	TimeSpan App::GetStartTime()
-	{
-		return sp_AppInstance->m_StartTime;
-	}
-
-	double App::GetDeltaTime()
-	{
-		return sp_AppInstance->m_MainLoop->GetDeltaTime();
-	}
-
-	App* App::sp_AppInstance = nullptr;
-
-	App::AppExitCode App::Run()
-	{
-		LogCore(LogLevel::Verbose, "App::Run(): Starting MainLoop");
-
-		try
-		{
-			m_MainLoop->Start();
-
-			OnAppQuit.EmitAnonymous();
-
-			return m_ExitCode;
-		}
-		catch (...)
-		{
-			Exception ex = GetException();
-
-			// TODO: error handle for app
-			LogCore(LogLevel::Error, "An unhandled exception occured: {0}", ex.what());
-
-			return AppExitCode::UNHANDLED_EXCEPTION;
-		}
-	}
-
-	bool App::Quit(AppExitCode exitCode)
-	{
-		AppQuittingEvent quittingEvent;
+		// Broadcast a quitting event to everybody
+		AppQuittingEvent quittingEvent(forceQuit);
 		OnAppQuitting.Emit(quittingEvent);
 
-		if (quittingEvent.ShouldQuit)
+		if (forceQuit || !quittingEvent.Cancel)
 		{	
-			m_ExitCode = exitCode;
-			m_MainLoop->Stop();
+			Engine::Get()->Stop(exitCode);
 
 			return true;
 		}
@@ -83,17 +45,18 @@ namespace Nova
 		return false;
 	}
 
-	void App::CreateDefaultLogSinks(LogLevel coreLevel, LogLevel appLevel)
+	void App::CreateSingleton()
 	{
-		m_CoreLogger->CreateSink<ConsoleLogSink>(coreLevel);
-		m_AppLogger->CreateSink<ConsoleLogSink>(appLevel);
+		if (s_Instance)
+			throw AppInitException("Another instance of the app already exists!");
 
-		LogCore(LogLevel::Verbose, "App::CreateDefaultLogSinks(): Core logger created");
-		Log(LogLevel::Verbose, "App::CreateDefaultLogSinks(): App logger created");
+		s_Instance = this;
+
+		Log(LogLevel::Verbose, "App singleton created");
 	}
 
-	Exclusive<MainLoop> App::CreateMainLoop()
+	void App::CreateNodeTree()
 	{
-		return MakeExclusive<MainLoop>();
+		m_NodeTree = MakeRef<NodeTree>();
 	}
 }

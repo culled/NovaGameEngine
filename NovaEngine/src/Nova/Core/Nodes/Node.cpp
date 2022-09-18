@@ -7,10 +7,10 @@ namespace Nova
 		m_Name(name)
 	{}
 
-	bool Node::TickPriorityComparator(const Ref<Node>& lhs, const Ref<Node>& rhs)
-	{
-		return lhs->GetTickOrder() > rhs->GetTickOrder();
-	}
+	//bool Node::TickPriorityComparator(const Ref<Node>& lhs, const Ref<Node>& rhs)
+	//{
+	//	 lhs->GetTickOrder() > rhs->GetTickOrder();
+	//}
 
 	void Node::SetIsActive(bool isActive)
 	{
@@ -46,7 +46,7 @@ namespace Nova
 		return isActive;
 	}
 
-	void Node::SetTree(WeakRef<NodeTree> tree)
+	void Node::SetTree(const WeakRef<NodeTree>& tree)
 	{
 		m_Tree = tree;
 
@@ -57,7 +57,7 @@ namespace Nova
 		}
 	}
 
-	void Node::AddChild(Ref<Node> node)
+	void Node::AddChild(const Ref<Node>& node)
 	{
 		m_Children.push_back(node);
 
@@ -65,7 +65,7 @@ namespace Nova
 		node->SetParent(GetSelfWeakRef<Node>());
 	}
 
-	void Node::RemoveChild(Ref<Node> node)
+	void Node::RemoveChild(const Ref<Node>& node)
 	{
 		auto it = std::find_if(m_Children.begin(), m_Children.end(), [node](const Ref<Node>& other) {
 			return node.get() == other.get();
@@ -80,7 +80,7 @@ namespace Nova
 		}
 	}
 
-	void Node::SetParent(WeakRef<Node> node)
+	void Node::SetParent(const WeakRef<Node>& node)
 	{
 		m_Parent = node;
 		

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
 
 namespace Nova
 {
@@ -15,7 +15,9 @@ namespace Nova
 		Event();
 		virtual ~Event() = default;
 
-		/// If set to false, this event will stop propagating to listeners
+		/// <summary>
+		/// If set to false, this event will stop propagating to subsequent listeners
+		/// </summary>
 		bool Propagate = true;
 	};
 }

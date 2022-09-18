@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
+#include "Nova/Core/Types/RefCounted.h"
 
 #include "LogLevel.h"
 
@@ -44,7 +45,9 @@ namespace Nova
 		virtual void WriteImpl(const string& message, LogLevel level) = 0;
 
 	private:
+		/// <summary>
 		/// The minimum level of messages that this sink will write
+		/// </summary>
 		LogLevel m_MinimumLevel = LogLevel::Verbose;
 	};
 }

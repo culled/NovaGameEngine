@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Nova/Core/Engine.h"
+#include "Nova/Core/EngineAPI.h"
+#include "Nova/Core/Types/List.h"
 #include "Event.h"
 
 #include <functional>
@@ -159,7 +160,7 @@ namespace Nova
 		/// </summary>
 		/// <param name="ref">The Ref to bind to</param>
 		/// <param name="method">The function to bind to</param>
-		RefEventBinding(Ref<ClassType> ref, EventFuncDelegate<ClassType, EventType> func) :
+		RefEventBinding(const Ref<ClassType>& ref, EventFuncDelegate<ClassType, EventType> func) :
 			m_WeakRef(WeakRef<ClassType>(ref)), m_Func(func)
 		{}
 
@@ -242,7 +243,7 @@ namespace Nova
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
-		void Connect(Ref<ClassType> object, EventFuncDelegate<ClassType, DerivedEventType> method)
+		void Connect(const Ref<ClassType>& object, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
 			BindingRef binding = MakeBindingRef<RefEventBinding<ClassType, DerivedEventType>>(object, method);
 
@@ -256,7 +257,7 @@ namespace Nova
 		/// <param name="object">The object that the function belongs to</param>
 		/// <param name="method">The address of the function</param>
 		template<typename ClassType, typename DerivedEventType, typename = std::enable_if_t<std::is_convertible_v<EventType&, DerivedEventType&>>>
-		void Disconnect(Ref<ClassType> object, EventFuncDelegate<ClassType, DerivedEventType> method)
+		void Disconnect(const Ref<ClassType>& object, EventFuncDelegate<ClassType, DerivedEventType> method)
 		{
 			BindingRef binding = MakeBindingRef<RefEventBinding<ClassType, DerivedEventType>>(object, method);
 			
@@ -329,26 +330,6 @@ namespace Nova
 		}
 
 		/// <summary>
-		/// Removes invalid listeners from the list of listeners
-		/// </summary>
-		void RemoveInvalidListeners()
-		{
-			auto it = m_Listeners.begin();
-
-			while (it != m_Listeners.end())
-			{
-				if (!(*it)->IsValid())
-				{
-					it = m_Listeners.erase(it);
-				}
-				else
-				{
-					it++;
-				}
-			}
-		}
-
-		/// <summary>
 		/// Gets the number of listeners. This will include invalid listeners until an event is emitted or RemoveInvalidListeners is called 
 		/// </summary>
 		/// <returns>The number of listeners</returns>
@@ -393,9 +374,31 @@ namespace Nova
 		{
 			return std::make_shared<BindingType>(std::forward<Args>(args)...);
 		}
+		
+		/// <summary>
+		/// Removes invalid listeners from the list of listeners
+		/// </summary>
+		void RemoveInvalidListeners()
+		{
+			auto it = m_Listeners.begin();
+
+			while (it != m_Listeners.end())
+			{
+				if (!(*it)->IsValid())
+				{
+					it = m_Listeners.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+		}
 
 	private:
+		/// <summary>
 		/// The list of bindings to listeners
+		/// </summary>
 		List<BindingRef> m_Listeners;
 	};
 }

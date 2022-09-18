@@ -15,8 +15,8 @@ namespace Nova
 		/// <summary>
 		/// Creates a TimeSpan with the given duration of microseconds
 		/// </summary>
-		/// <param name="microseconds">The number of microseconds that have passed</param>
-		TimeSpan(uint64_t microseconds = 0);
+		/// <param name="microseconds">The duration length in microseconds</param>
+		TimeSpan(int64_t microseconds = 0);
 
 	public:
 		/// <summary>
@@ -25,28 +25,35 @@ namespace Nova
 		/// <returns>A TimeSpan that represents the duration of time since epoch</returns>
 		static TimeSpan Now();
 
+		/// <summary>
+		/// Creates a TimeSpan that represents the given number of seconds
+		/// </summary>
+		/// <param name="seconds">The number of seconds for the TimeSpan</param>
+		/// <returns>A TimeSpan representing the given number of seconds</returns>
+		static TimeSpan FromSeconds(double seconds);
+
 	public:
 		// The amount of microseconds in 1 millisecond
-		static const uint64_t USecsPerMillisecond;
+		static const int64_t USecsPerMillisecond;
 
 		// The amount of microseconds in 1 second
-		static const uint64_t USecsPerSecond;
+		static const int64_t USecsPerSecond;
 
 		// The amount of microseconds in 1 minute
-		static const uint64_t USecsPerMinute;
+		static const int64_t USecsPerMinute;
 
 		// The amount of microseconds in 1 hour
-		static const uint64_t USecsPerHour;
+		static const int64_t USecsPerHour;
 
 		// The amount of microseconds in 1 day
-		static const uint64_t USecsPerDay;
+		static const int64_t USecsPerDay;
 
 	public:
 		/// <summary>
 		/// Gets the number of microseconds of this TimeSpan
 		/// </summary>
 		/// <returns>The number of microseconds of this TimeSpan</returns>
-		uint64_t GetMicroseconds() const;
+		int64_t GetMicroseconds() const;
 
 		/// <summary>
 		/// Gets the milliseconds component of this TimeSpan
@@ -110,9 +117,41 @@ namespace Nova
 
 		TimeSpan operator+(const TimeSpan& rhs) const;
 		TimeSpan operator-(const TimeSpan& rhs) const;
+		bool operator>(const TimeSpan& rhs) const;
+		bool operator<(const TimeSpan& rhs) const;
+		bool operator==(const TimeSpan& rhs) const;
 
 	private:
+		/// <summary>
 		/// The number of microseconds in this TimeSpan
-		uint64_t m_Microseconds;
+		/// </summary>
+		int64_t m_Microseconds;
+	};
+
+	/// <summary>
+	/// Represents a point in time
+	/// </summary>
+	struct NovaAPI DateTime
+	{
+	public:
+		DateTime(uint64_t microsecondsSinceEpoch);
+
+	public:
+		/// <summary>
+		/// Gets the current time
+		/// </summary>
+		/// <returns>The current time</returns>
+		static DateTime Now();
+
+	public:
+		DateTime operator+(const TimeSpan& rhs) const;
+		DateTime operator-(const TimeSpan& rhs) const;
+		TimeSpan operator-(const DateTime& rhs) const;
+
+	private:
+		/// <summary>
+		/// The number of microseconds that have passed since unix epoch
+		/// </summary>
+		uint64_t m_MicrosecondsSinceEpoch;
 	};
 }

@@ -4,8 +4,8 @@ project "NovaEngine"
     cppdialect "C++20"
     staticruntime "on"
 
-    targetdir "%{OutputDir.bin}/%{prj.name}"
-    objdir "%{OutputDir.obj}/%{prj.name}"
+    targetdir "%{OutputDir.bin}%{prj.name}"
+    objdir "%{OutputDir.obj}%{prj.name}"
 
     files
     {
@@ -16,15 +16,12 @@ project "NovaEngine"
     includedirs
     {
         "%{IncludeDir.nova}",
-        "%{IncludeDir.glfw}",
-        "%{IncludeDir.glad}",
+        "%{IncludeDir.sdl}",
         "%{IncludeDir.ImGui}",
     }
 
     links
     {
-        "GLFW",
-        "GLAD",
         "ImGui",
     }
 
